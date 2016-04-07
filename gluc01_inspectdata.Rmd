@@ -1,0 +1,154 @@
+---
+title: "Glucose Project"
+author: "Verena Steffen"
+output: html_document
+---
+
+Read in the data, adapt format, and explore.
+
+```{r,cache=TRUE}
+setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+
+glu <- read.csv("Glucose monitoring UZH/Glucose_2014.csv", sep=";", stringsAsFactors=FALSE)
+
+# count number of rows
+A <- nrow(glu)
+A
+
+# Information about columns
+colnames(glu)
+
+glu$Laborbereich[which(glu$Laborbereich == "Zentrum f\x9fr Labormedizin")] <- "Klinische Chemie"
+glu$Laborbereich[which(glu$Laborbereich == "Point-of-Care-Diagnostik")] <- "POC"
+glu$Laborbereich[which(glu$Laborbereich == "Klinische Chemie")] <- "ClinChem"
+glu$Laborbereich <- as.factor(glu$Laborbereich)  # convert to factor
+glu$Anforderung <- as.POSIXct(glu$Anforderung, format = "%d.%m.%Y %H:%M")  # convert to date format
+glu$Sex[which(glu$Sex == "")] <- glu$Sex[which(glu$Sex == "U")] <- NA  # unknown gender to NA
+glu$Sex <- as.factor(glu$Sex)  # convert to factor
+glu$Analyse.Bezeichnung <- as.factor(glu$Analyse.Bezeichnung)  # convert to factor
+glu$Wert.Analyse <- as.numeric(glu$Wert.Analyse)  # convert to numeric
+glu$ANR_anon <- as.factor(glu$ANR_anon)  # convert to factor
+glu$PID_anon <- as.factor(glu$PID_anon)  # convert to factor
+glu$Ward_anon <- as.factor(glu$Ward_anon)  # convert to factor
+
+colnames(glu) <- c("Lab", "Time", "Sex", "Analyse.Bezeichnung", "Glucose", "YOB", "ANR", "PID", "Ward")  # simplify names
+
+glu <- glu[, -4]  # delete "Analyse.Bezeichnung" (because only one level: "Glucose")
+
+head(glu, 1)
+
+### Exclude some patients
+# 1. Lab = Morphologie  # 3
+a <- which(glu$Lab == "Morphologie")
+# 2. Glucose values > 70  # 3
+b <- which(glu$Glucose > 70)
+# 3. NA data in Sex  #796
+c <- which(is.na(glu$Sex))
+# exclude
+glu <- glu[-c(a, b, c), ]
+# Check
+B <- nrow(glu)  # compare to 326815 rows before
+A-B  # rows removed in total
+
+# Remove "Morphologie" factor
+glu$Lab <- factor(glu$Lab)
+levels(glu$Lab)
+
+# Change level names for simplicity of model
+
+# str(glu$PID)  # 50142 levels
+# levels(glu$PID) <- 1:50142
+# 
+# str(glu$Ward)  # 468 Levels
+# levels(glu$Ward) <- 1:468
+
+# # First try: Linear model
+# mod1 <- lm(Glucose ~ Lab * Sex, data = glu)
+# summary(mod1)
+# 
+# 
+# # Some Plots
+# boxplot(glu$Glucose ~ glu$Sex, main = "Glucose distribution", pch = "-", log = "y")
+# boxplot(glu$Glucose ~ glu$Lab, main = "Glucose distribution", pch = "-", log = "y")
+
+# # Variability of the two methods
+# # ClinChem
+# range(glu$Glucose[glu$Lab == "ClinChem"], na.rm = TRUE)
+# var(glu$Glucose[glu$Lab == "ClinChem"], na.rm = TRUE)
+# # POC
+# range(glu$Glucose[glu$Lab == "POC"], na.rm = TRUE)
+# var(glu$Glucose[glu$Lab == "POC"], na.rm = TRUE)
+
+
+# Count NAs
+sum(as.numeric(is.na(glu$Glucose)))
+
+# library(lattice)
+# densityplot(glu$YOB, main = "Year of birth", pch = ".")
+
+# Look at YOB variable
+# Assume all patients are below 100 years old
+# Assume 0-14 --> 2000 - 2014
+
+range(glu$YOB)
+# Change 15-99 to 1915 to 1999
+glu$YOB[which(glu$YOB > 14)] <- 
+    as.numeric(paste0(19, glu$YOB[which(glu$YOB > 14)]))
+
+# Change 0-9 to 2000-2009
+glu$YOB[which(glu$YOB < 10)] <- 
+    as.numeric(paste0(200, glu$YOB[which(glu$YOB < 10)]))
+
+# Change 10-14 to 2010-2014
+glu$YOB[which(glu$YOB >= 10 & glu$YOB <= 14)] <- 
+    as.numeric(paste0(20, glu$YOB[which(glu$YOB >= 10 & glu$YOB <= 14)]))
+
+hist(glu$YOB)
+range(glu$YOB)
+
+# Add Age column
+glu$Age <- rep(2014, nrow(glu)) - glu$YOB
+hist(glu$Age)
+
+save(glu, file = "cleared_data_full.RData") 
+```
+
+##Infos: 
+- Hyperglycemia in hospitalized patients has been defined as blood glucose >7.8 mmol/l
+- Insulin therapy should be initiated for treatment of persistent hyperglycemia starting at a threshold ≥ 10.0 mmol/l
+- Once insulin therapy is started, a target glucose range of 7.8-10.0 mmol/l is recommended for the majority of critically ill patients and noncritically ill patients
+- More stringent goals, such as 6.7-7.8 mmol/l may be appropriate for selected critically ill patients, as long as this can be achieved without significant hypoglycemia
+- Hypoglycemia in hospitalized patients has been defined as blood glucose≤3.9 mmol/l and severe hypoglycemia as <2.2 mmol/l
+
+##Goals:
+- An automated alerting system that warns whenever outlier values are reached and alerts the clinician to the need for monitoring individuals at risk and adequately addressing and treating hyperglycemia would be a first step to improve in-patient glucose control, thereby considerably reducing morbidity and mortality of hospitalized patients
+- To retrospectively assess the in-hospital glucose control of patients at the University Hospital Bern in the year 2014
+
+#Assessed Variables:
+- Blood glucose
+- Long-term glucose control: HbA1C (reflects average blood glucose over the past 2-3 months)
+- Clinical Department (site of sample acquisition) (“Einsender”)
+- Age
+- gender
+- Patient id (PID)
+- Date and time of analysis
+- Measurement method (“Laborbereich”): point-of-care versus core lab
+        - “Point-of-Care-Diagnostik”
+        - “Klinische Chemie”
+- Setting: inpatient vs. outpatient
+        Inpatient=at least two successive BG values on different days
+- Comorbidity parameters (to be discussed)
+        - Kidney function: eGFR, creatinine
+        - liver function: ALAT, ASAT
+        - Lipid profile: total Cholesterol, HDL, LDL, Triglycerides
+
+##Questions: 
+
+- What does "YOB" stand for? --> Year of birth: CAUTION: ambigous 
+- Do we get the reason for hospitalization? It is encrypted in Ward_anon
+- Should we convert YOB to age (in years) when we have more information?
+
+
+
+
+

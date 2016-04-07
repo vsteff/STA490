@@ -1,0 +1,13 @@
+---
+title: "Questions"
+author: "Verena Steffen"
+date: "April 6, 2016"
+output: html_document
+---
+
+# Glucose Project Inselspital Bern
+
+- model selection: start with most complex etc?
+- Ward - still use if it makes model worse?
+- Can we go through parameters?
+- Can I get access to computational resources?

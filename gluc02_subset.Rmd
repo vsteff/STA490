@@ -1,0 +1,197 @@
+---
+title: "glu02 Subset of total data"
+author: "Verena Steffen"
+date: "March 12, 2016"
+output: html_document
+---
+
+Here, I take a subset of the data to speed the test calculations up.       
+
+Prepare data:
+```{r}
+# Clear workspace
+rm(list=ls())
+# Set working directory
+setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+
+# Load old workspace
+load("cleared_data_full.RData")
+
+# Take a subset of the data
+glu_small <- glu[1:1000, ]
+
+# Inspect
+length(levels(factor(glu_small$PID)))  # counts number of patients in subset
+length(levels(glu$PID))  # counts number of patients in complete data
+
+# # Delete glu from environment
+# rm(list = c("glu"))
+
+# Prepare data
+glu_small$PID <- factor(glu_small$PID)
+glu_small$Ward <- factor(glu_small$Ward)
+levels(glu_small$PID) <- 1:328
+levels(glu_small$Ward) <- 1:91
+levels(glu$PID) <- 1:50142
+levels(glu$Ward) <- 1:468
+```
+
+Inspect data:
+```{r,message=FALSE}
+library(qualityTools)
+# How is Glucose distributed?
+hist(glu_small$Glucose)
+qqPlot(glu_small$Glucose, y = "normal", cex = 0.3)
+# no.
+
+# Log transformation
+hist(log(glu_small$Glucose))
+qqPlot(log(glu_small$Glucose), y = "normal", cex = 0.3)
+# looks better, for now acceptable.
+# Look at Glucose distribution in whole dataset
+hist(glu$Glucose)
+hist(log(glu$Glucose), prob = TRUE)
+x<-seq(0,1000,0.01)
+curve(dnorm(x, mean=mean(log(glu$Glucose), na.rm=T), sd=sd(log(glu$Glucose), na.rm=T)), col = 3, add = TRUE)
+lines(density(log(glu$Glucose), na.rm=T, from = min(log(glu$Glucose), na.rm=T), to = max(log(glu$Glucose), na.rm=T)), col = 2)
+legend("topleft", c("Normal Density", "True Density"), lty = 1, col = c(3, 2), box.lty = 0)
+
+qqPlot(log(glu$Glucose), y = "normal", cex = 0.3)
+```
+
+Plots
+```{r}
+# Look at the development over time
+library(lattice)
+xyplot(log(Glucose) ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) <= 50), ], 
+       type = "b", pch = "*", cex = 3, col = rainbow(50), 
+       main = "Glu over time; Patients 1-50", 
+       # scales = list(y = list(log = TRUE)), 
+       ylim = c(1, 4.15)
+       )
+
+xyplot(log(Glucose) ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) > 50 & as.numeric(glu$PID) <= 100), ], 
+       type = "b", pch = "*", cex = 3, col = rainbow(50), 
+       main = "log(Glu) over time; Patients 51-100", 
+       ylim = c(1, 4.15))
+
+xyplot(log(Glucose) ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) > 100 & as.numeric(glu$PID) <= 150), ], 
+       type = "b", pch = "*", cex = 3, col = rainbow(50), 
+       main = "log(Glu) over time; Patients 101-150", 
+       ylim = c(1, 4.15))
+
+xyplot(log(Glucose) ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) > 150 & as.numeric(glu$PID) <= 200), ], 
+       type = "b", pch = "*", cex = 3, col = rainbow(50), 
+       main = "log(Glu) over time; Patients 151-200", 
+       ylim = c(1, 4.15))
+
+xyplot(log(Glucose) ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) > 200 & as.numeric(glu$PID) <= 250), ], 
+       type = "b", pch = "*", cex = 3, col = rainbow(50), 
+       main = "log(Glu) over time; Patients 201-250", 
+       ylim = c(1, 4.15))
+
+xyplot(log(Glucose) ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) > 250 & as.numeric(glu$PID) <= 300), ], 
+       type = "b", pch = "*", cex = 3, col = rainbow(50), 
+       main = "log(Glu) over time; Patients 251-300", 
+       ylim = c(1, 4.15))
+```
+
+
+Start with simplest model possible, and work way through until model fits data.     
+
+The first model is a simple linear model for Glucose, with covariates Lab, Sex, Age, Ward.
+
+$$Glucose_i = Intercept + Lab_i + Sex_i + Age_i + Ward_i + \epsilon_i$$
+
+```{r}
+# linear model
+lm0 <- lm(log(Glucose) ~ 1, data = glu_small)
+lm1 <- lm(log(Glucose) ~ Lab + Sex + Age + Ward + poly(Time, 5), data = glu_small)
+anova(lm0, lm1)
+xyplot(lm1$residuals ~ lm1$fitted.values, main = "Residuals vs. fitted (simple linear model)", pch = "*", cex = 2)
+# homogeneity of variance assumption is violated
+qqPlot(lm1$residuals, cex = 0.3)  # residuals not normally distributed
+```
+
+Try `nlme` `gls`
+```{r}
+# generalized least squares model 
+library(nlme)
+gls1 <- gls(log(Glucose) ~ Lab + Sex + Ward + Age, correlation = corCAR1(), data = glu_small)
+plot(gls1, pch = "*", cex = 2)
+```
+
+Source: [link](http://rpsychologist.com/r-guide-longitudinal-lme-lmer)
+
+Try `lme4` mixed models
+```{r}
+# Mixed model, Ward as fixed effect
+library(lme4)
+
+# Null model
+mm0 <- lmer(log(Glucose) ~ 1 + (1 | PID), data = glu_small, REML = FALSE)
+
+# Ward fixed
+mm1a <- lmer(log(Glucose) ~ Lab + Sex + Age + Ward + poly(Time, 3) + (1 | PID), data = glu_small, REML = FALSE)
+plot(mm1a, pch = "*", cex = 2)
+
+# Ward random
+mm1b <- lmer(log(Glucose) ~ Lab + Sex + Age + poly(Time, 3) + (1 | Ward) + (1 | PID), data = glu_small, REML = FALSE)
+plot(mm1b, pch = "*", cex = 2)
+
+# Model comparison
+anova(mm0, mm1a, mm1b)
+```
+
+`nlme` mixed models
+```{r}
+# mixed effects model
+library(nlme)
+lme0 <- lme(log(Glucose) ~ 1, 
+            random = ~1 | PID,
+            # cor = corCAR1(),  # correlated residuals
+            data = glu_small, 
+            method = "ML")
+plot(lme0, pch = "*", cex = 2)
+
+# Without Ward
+lme1 <- lme(log(Glucose) ~ Lab + Age + Sex + poly(Time, 2), 
+            random = ~ Time | PID, 
+            cor = corCAR1(),  # correlated residuals
+            data = glu_small, 
+            method = "ML")
+plot(lme1, pch = "*", cex = 2)
+
+anova(lme0, lme1)
+
+# With Ward as fixed effect
+lme2 <- lme(log(Glucose) ~ Lab + Age + Sex + Ward + poly(Time, 2), 
+            random = ~ Time | PID, 
+            cor = corCAR1(),  # correlated residuals
+            data = glu_small, 
+            method = "ML")
+plot(lme2, pch = "*", cex = 2)
+
+# With Ward as random effect
+lme3 <- lme(log(Glucose) ~ Lab + Age + Sex + poly(Time, 2), 
+            random = list(~ Time | PID, Ward = ~ 1), 
+            cor = corCAR1(),  # correlated residuals
+            data = glu_small, 
+            method = "ML")
+plot(lme3, pch = "*", cex = 2)
+
+anova(lme0, lme1, lme2, lme3)
+
+rm(list=ls()[!ls()%in%c("glu")])
+save(glu, file = "cleared_data_full.RData")
+```
+
+The mixed models with nlme seem to be worse than those with lme4.
+
+
