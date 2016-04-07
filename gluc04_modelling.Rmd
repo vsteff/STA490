@@ -13,7 +13,28 @@ setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA
 # Load data
 load("glu_v01.RData")
 
+# Some plots
 library(lattice)
+#xyplot(11:30~11:30, )
+p1 <- xyplot(Glu ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) <= 50), ], 
+       type = "b", pch = "*", cex = 2, col = rainbow(50), 
+       main = "Glu over time; Patients 1-50", 
+       scales = list(y = list(log = TRUE, equispaced.log = FALSE)),
+       ylim = range(glu$Glu), 
+       panel = function(...) {
+           panel.xyplot(...)
+           panel.abline(h = log(c(2.2, 4, 7.7, 10, 15), 10), lty = "dotted", col = "black")}
+       )
+# print(p1)
+pdf("plots/p1.pdf", width = 20, height = 10); print(p1); dev.off()
+
+
+
+
+
+
+# Cr.ABL: 
 xyplot(Cr.ABL ~ log(Glu), data = glu, pch = "*", cex = 2)
 xyplot(CR ~ log(Glu), data = glu, pch = "*", cex = 2)
 xyplot(eGFR ~ log(Glu), data = glu, pch = "*", cex = 2)

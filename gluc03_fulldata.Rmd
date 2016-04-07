@@ -10,8 +10,7 @@ output: html_document
 # Clear workspace
 rm(list=ls())
 # Set working directory
-# setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
-setwd("STA490_StatisticalConsulting")
+setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
 
 glu <- read.csv("Glucose monitoring UZH/Glucose_2014_anon.csv", sep=";", stringsAsFactors=FALSE)
 # There are duplicate rows in the data frame
@@ -28,7 +27,7 @@ glu$Laborbereich <- as.factor(glu$Laborbereich)  # convert to factor
 glu$Anforderung <- as.POSIXct(glu$Anforderung, format = "%d.%m.%Y %H:%M")  # convert to date format
 glu$Geschlecht[which(glu$Geschlecht == "")] <- glu$Geschlecht[which(glu$Geschlecht == "U")] <- NA  # unknown gender to NA
 glu$Geschlecht <- as.factor(glu$Geschlecht)  # convert to factor
-# glu$Analyse.Bezeichnung <- as.factor(glu$Analyse.Bezeichnung)  # convert to factor
+glu$Analyse.Bezeichnung <- as.factor(glu$Analyse.Bezeichnung)  # convert to factor
 glu$Glu <- as.numeric(glu$Glu)  # convert to numeric
 glu$Cr.ABL <- as.numeric(glu$Cr.ABL)  # convert to numeric
 glu$CR <- as.numeric(glu$CR)  # convert to numeric
@@ -113,8 +112,7 @@ glu$Inpatient <- rep(NA, nrow(glu))
 npatients <- length(unique(glu$PID))  # 41428
 nrow(glu)/npatients  # mean observations per patient
 
-(start <- Sys.time())
-for (i in 1:npatients) {  # i: patient
+for (i in 1:100) {  # i: patient
     pat.time <- glu[which(as.numeric(glu$PID) == i), "Time.trunc"]
     
     j <- 1  # j: time point of patient i
@@ -152,11 +150,8 @@ for (i in 1:npatients) {  # i: patient
         j <- j+1
     }
 }
-(end <- Sys.time())
 
-start-end
-
-tail(glu[, c("PID", "Time", "Inpatient")], 20)
+head(glu[, c("PID", "Time", "Inpatient")], 20)
 
 # access single patient
 # i <- 3794
