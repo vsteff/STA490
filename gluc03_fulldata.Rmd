@@ -154,15 +154,17 @@ for (i in 1:100) {  # i: patient
 head(glu[, c("PID", "Time", "Inpatient")], 20)
 
 # access single patient
-# i <- 12
+# i <- 196
 head(glu[as.numeric(glu$PID) == i, c("Time", "Inpatient")], 50)
 ```
 
 
 ```{r}
 # Add column for high variability inpatients
+load("glu_v01.RData")
+
 CV <- function(mean, sd) (sd/mean)*100
-glu$cv <- glu$high.var <- rep(NA, nrow(glu))
+glu$cv <- rep(NA, nrow(glu))
 
 npatients <- length(unique(glu$PID))  # 41428
 for (i in 1:npatients) {  # i: patient
@@ -171,9 +173,19 @@ for (i in 1:npatients) {  # i: patient
     glu[which(as.numeric(glu$PID) == i), "cv"] <- ifelse(pat.inp == TRUE, CV(mean(pat.glu), sd(pat.glu)), NA)
 }
 glu$high.var <- ifelse(glu$cv > 15, 1, 0)
+glu$high.var2 <- ifelse(glu$cv > 20, 1, 0)
 
-glu[1:100, c("PID", "Time", "Inpatient", "cv", "high.var")]
+glu[which(as.numeric(glu$PID) <= 200), c("PID", "Time", "Inpatient", "cv", "high.var")]
+table(glu$high.var)
+table(glu$high.var2)
 ```
+
+```{r}
+# Add column for diabetic yes/no
+glu$diabetic <- ifelse()
+
+```
+
 
 
 ```{r}
