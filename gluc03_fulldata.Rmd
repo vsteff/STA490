@@ -154,13 +154,32 @@ for (i in 1:100) {  # i: patient
 head(glu[, c("PID", "Time", "Inpatient")], 20)
 
 # access single patient
-# i <- 3794
 # i <- 12
 head(glu[as.numeric(glu$PID) == i, c("Time", "Inpatient")], 50)
-
-
-# safe workspace
-save(glu, file = "glu_v01.RData")
-
 ```
+
+
+```{r}
+# Add column for high variability inpatients
+CV <- function(mean, sd) (sd/mean)*100
+glu$cv <- glu$high.var <- rep(NA, nrow(glu))
+
+npatients <- length(unique(glu$PID))  # 41428
+for (i in 1:npatients) {  # i: patient
+    pat.glu <- glu[which(as.numeric(glu$PID) == i), "Glu"]
+    pat.inp <- glu[which(as.numeric(glu$PID) == i), "Inpatient"]
+    glu[which(as.numeric(glu$PID) == i), "cv"] <- ifelse(pat.inp == TRUE, CV(mean(pat.glu), sd(pat.glu)), NA)
+}
+glu$high.var <- ifelse(glu$cv > 15, 1, 0)
+
+glu[1:100, c("PID", "Time", "Inpatient", "cv", "high.var")]
+```
+
+
+```{r}
+# safe workspace
+save(glu, file = "glu_v02.RData")
+```
+
+
 

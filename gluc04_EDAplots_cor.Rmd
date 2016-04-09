@@ -1,0 +1,162 @@
+---
+title: "Glucose Project Version 4"
+author: "Verena Steffen"
+date: "April 5, 2016"
+output: html_document
+---
+```{r,echo=FALSE}
+# Clear workspace
+rm(list=ls())
+# Set working directory
+setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+# Load data
+load("STA490/glu_v01.RData")
+```
+
+# Exploratory plots
+## Patient vs. time
+```{r,fig.width=25,fig.height=13}
+# Some plots
+ranges <- c("severe hyperglycemia", 
+            "pronounced hyperglycemia", 
+            "mild hyperglycemia",
+            "euglycemia",
+            "hypoglycemia",
+            "severe hypoglycemia")
+low.borders <- c(2.2, 4, 7.7, 10, 15, range(glu$Glu)[2])
+library(lattice)
+p1 <- xyplot(Glu ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) <= 50), ], 
+       type = "b", pch = "*", cex = 5, col = rainbow(50),
+       main = list("Glucose levels of 50 patients in 2014", cex = 4), 
+       xlab = list("Month 2014", cex = 2),
+       ylab = list("Glucose (mmol/l)", cex = 2),
+       scales = list(cex = 2, y = list(log = TRUE, equispaced.log = FALSE)),
+       ylim = range(glu$Glu), 
+       panel = function(...) {
+           panel.xyplot(...)
+           panel.abline(h = log(low.borders, 10), lty = "dotted", col = "black")
+           panel.text(x = as.numeric(min(glu$Time)), 
+                      y = log(0.9*low.borders, 10), 
+                      ranges,  # text
+                      pos = 4, cex = 1.5)}  # left-bound
+       )
+print(p1)
+# pdf("STA490/plots/p1.pdf", width = 20, height = 10); print(p1); dev.off()
+```
+
+## Other parameters vs. Glucose
+Calculate correlations and summarize them.
+```{r}
+pars <- as.list(glu[5:17])
+cors <- unlist(lapply(X = pars, FUN = cor, y = glu$Glu, use = "complete.obs"))
+
+cors <- as.data.frame(cors)
+cors$descr <- c("Creatinine POC (point of care)",
+           "Creatinine CC (clin. chem.)",
+           "estimated Glomerular Filtration Rate, MDR formula",
+           "estimated Glomerular Filtration Rate, CKDE formula", 
+           "Hemoglobin A1c",
+           "Hemoglobin A1c", 
+           "aspartate amino transferase",
+           "alanine amino transferase",
+           "total cholesterol",
+           "Triglygerides",
+           "high-density lipoprotein",
+           "low-density lipoprotein",
+           "low-density lipoprotein, calculated")
+cors$func <- c(rep("Kidney", 4), 
+          rep("Diabetic Control", 2), 
+          rep("Liver", 2),
+          rep("Fat", 5))
+colnames(cors) <- c("Pearson Cor. w/ Glucose", 
+                    "Parameter",
+                    "Met. Function")
+knitr::kable(cors)
+```
+
+### Plot some eventually relevant parameters.
+#### HbA1c.DCCT: Hemoglobin A1c  /// Diabetic Control
+```{r}
+xyplot(HbA1c.DCCT ~ Glu, data = glu, pch = "*", cex = 2, 
+       scales = list(list(log = TRUE, equispaced.log = FALSE)))
+```
+
+#### HbA1c.IFCC: Hemoglobin A1c  /// Diabetic Control (use that!)
+```{r}
+xyplot(HbA1c.IFCC ~ Glu, data = glu, pch = "*", cex = 2, 
+       scales = list(list(log = TRUE, equispaced.log = FALSE)))
+```
+
+#### CHOL: total cholesterol  /// Fat
+```{r}
+xyplot(CHOL ~ Glu, data = glu, pch = "*", cex = 2, 
+       scales = list(list(log = TRUE, equispaced.log = FALSE)))
+```
+
+#### TG: Triglygerides  /// Fat
+```{r}
+xyplot(TG ~ Glu, data = glu, pch = "*", cex = 2, 
+       scales = list(list(log = TRUE, equispaced.log = FALSE)))
+```
+
+#### HDL: high-density lipoprotein  /// Fat
+```{r}
+xyplot(HDL ~ Glu, data = glu, pch = "*", cex = 2, 
+       scales = list(list(log = TRUE, equispaced.log = FALSE)))
+```
+
+#### LDL: low-density lipoprotein  /// Fat
+```{r}
+xyplot(LDL ~ Glu, data = glu, pch = "*", cex = 2, 
+       scales = list(list(log = TRUE, equispaced.log = FALSE)))
+```
+
+#### LDL: low-density lipoprotein, calculated  /// Fat
+```{r}
+xyplot(LDL.calc ~ Glu, data = glu, pch = "*", cex = 2, 
+       scales = list(list(log = TRUE, equispaced.log = FALSE)))
+```
+
+
+## Distribution of Glucose
+```{r}
+# Glucose distribution
+hist(glu$Glu)
+
+# Log transformation
+hist(log(glu$Glu), prob = TRUE, ylim = c(0,1.2))
+x<-seq(0,1000,0.01)
+curve(dnorm(x, mean=mean(log(glu$Glu), na.rm=T), sd=sd(log(glu$Glu), na.rm=T)), col = 3, add = TRUE)
+lines(density(log(glu$Glu), na.rm=T, from = min(log(glu$Glu), na.rm=T), to = max(log(glu$Glu), na.rm=T)), col = 2)
+legend("topleft", c("Normal Density", "True Density"), lty = 1, col = c(3, 2), box.lty = 0)
+
+qqnorm(log(glu$Glu), pch = ".", cex = 3)
+qqline(log(glu$Glu), col = 2)
+
+# Sqrt transformation
+hist(sqrt(glu$Glu), prob = TRUE, ylim = c(0,1.2))
+x<-seq(0,1000,0.01)
+curve(dnorm(x, mean=mean(sqrt(glu$Glu), na.rm=T), sd=sd(sqrt(glu$Glu), na.rm=T)), col = 3, add = TRUE)
+lines(density(sqrt(glu$Glu), na.rm=T, from = min(sqrt(glu$Glu), na.rm=T), to = max(sqrt(glu$Glu), na.rm=T)), col = 2)
+legend("topright", c("Normal Density", "True Density"), lty = 1, col = c(3, 2), box.lty = 0)
+
+qqnorm(sqrt(glu$Glu), pch = ".", cex = 3)
+qqline(sqrt(glu$Glu), col = 2)
+```
+
+--> Under a log transformation, a linear mixed model should be suitable.
+
+
+## Distribution of Age      
+- Assumption: none of the patients is > 100 years old.
+- patients < 3 years are excluded from the analysis.
+
+```{r}
+hist(glu$Age)
+```
+
+
+
+
+
