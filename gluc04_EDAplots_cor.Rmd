@@ -10,7 +10,7 @@ rm(list=ls())
 # Set working directory
 setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
 # Load data
-load("STA490/glu_v01.RData")
+load("STA490/glu_v03.RData")
 ```
 
 # Exploratory plots
