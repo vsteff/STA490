@@ -8,8 +8,201 @@ output: html_document
 rm(list=ls())
 # Set working directory
 setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+
 # Load data
-load("STA490/glu_v01.RData")
+# load("STA490/old versions/glu_v02.RData")
+# 
+# # Add column for high variability inpatients
+# CV <- function(mean, sd) (sd/mean)*100
+# glu$cv <- rep(NA, nrow(glu))
+# 
+# npatients <- length(unique(glu$PID))  # 41428
+# for (i in 1:npatients) {  # i: patient
+#     pat.glu <- glu[which(as.numeric(glu$PID) == i), "Glu"]
+#     pat.inp <- glu[which(as.numeric(glu$PID) == i), "Inpatient"]
+#     glu[which(as.numeric(glu$PID) == i), "cv"] <- ifelse(pat.inp == TRUE, CV(mean(pat.glu), sd(pat.glu)), NA)
+# }
+# save(glu, file = "STA490/old versions/glu_v02.RData")
+# 
+# glu$high.var15 <- ifelse(glu$cv > 15, 1, 0)
+# glu$high.var20 <- ifelse(glu$cv > 20, 1, 0)
+# glu$high.var30 <- ifelse(glu$cv > 30, 1, 0)
+# 
+# glu[which(as.numeric(glu$PID) <= 200), c("PID", "Time", "Inpatient", "cv", "high.var")]
 ```
+
+A converter from the old units (DCCT (Diabetes Control and Complications Trial) in %) to the new units (IFCC (International Federation of Clinical Chemistry) in mmol/mol) can be found here: 
+http://www.diabetes.co.uk/hba1c-units-converter.html
+
+A patient is diabetic if
+
+- HbA1c >= 6.5 % (equal to HbA1c >= 47.5 mmol/mol) **OR**
+- Glu >=11.1 mmol/l
+
+```{r}
+# load("STA490/old versions/glu_v03.RData")
+load("old versions/glu_v03.RData")
+
+par(mfrow=c(1,3),cex.axis=1, cex.lab=1, cex.main=1)
+hist(glu$HbA1c.IFCC); abline(v = 47.5, col = 2, lwd = 3)
+hist(glu$HbA1c.DCCT); abline(v = 6.5, col = 2, lwd = 3)
+hist(glu$Glu); abline(v = 11.1, col = 2, lwd = 3)
+par(mfrow=c(1,1),cex.axis=1, cex.lab=1, cex.main=1)
+
+# Diabetic
+diab <- table(glu$diabetic)
+# in %
+diab.perc <- table(glu$diabetic)/sum(table(glu$diabetic))*100
+knitr::kable(round(rbind(diab, diab.perc), 2))
+
+boxplot(Glu ~ diabetic, data = glu, pch = "*", log = "y", 
+        main = "Glucose value vs. diabetic", 
+        xlab = "Diabetic no (0) and yes (1)",
+        ylab = "Blood glucose in mmol/l")
+abline(h = 11.1, col = 2)
+```
+
+
+```{r,echo=FALSE}
+# Add column for diabetic yes/no
+# glu$diabetic <- ifelse((glu$Glu >= 11.1) |
+#                            (glu$HbA1c.IFCC >= 47.5 & !is.na(glu$HbA1c.IFCC)) |
+#                            (glu$HbA1c.DCCT >= 6.5) & !is.na(glu$HbA1c.DCCT), 1, 0)
+
+# # Define status according to glycemic control ranges
+# glu$glyc.control <- ifelse(glu$Glu < 2.2, 
+#             yes = "severe hypoglycemia", 
+#             no = ifelse(glu$Glu < 4, 
+#                         yes = "hypoglycemia", 
+#                         no = ifelse(glu$Glu < 7.8, 
+#                                     yes = "euglycemia",
+#                                     no = ifelse(glu$Glu < 10.1,
+#                                                 yes = "mild hyperglycemia",
+#                                                 no = ifelse(glu$Glu < 15,
+#                                                             yes = "pronounced hyperglycemia",
+#                                                             no = "severe hyperglycemia")))))
+```
+
+
+```{r,echo=FALSE}
+# glu$Inpatient <- as.factor(glu$Inpatient)
+# glu$high.var15 <- as.factor(glu$high.var15)
+# glu$high.var20 <- as.factor(glu$high.var20)
+# glu$high.var30 <- as.factor(glu$high.var30)
+# glu$diabetic <- as.factor(glu$diabetic)
+# glu$glyc.control <- factor(glu$glyc.control,
+#                            levels = c("severe hyperglycemia",
+#                                       "pronounced hyperglycemia",
+#                                       "mild hyperglycemia",
+#                                       "euglycemia",
+#                                       "hypoglycemia",
+#                                       "severe hypoglycemia"))
+# save(glu, file = "STA490/glu_v03.RData")
+```
+
+
+### Create frequency tables
+
+```{r}
+# Which Wards have more than 100 measurements?
+library(plyr)
+ward.count <- count(glu$Ward)
+# High variability by Ward with > 5,000 measurements
+ward5000 <- which(ward.count$freq > 5000)
+t0 <- xtabs(~ high.var20 + factor(Ward), glu[glu$Ward %in% ward5000, ])
+mosaicplot(t0, color = rainbow(length(t0)),
+           main = "High variability distribution in Wards with >5,000 measurements",
+           ylab = "Ward", xlab = "0: CV <= 20     1: CV > 20")
+t0
+# High variability by Ward with 3000 to 5,000 measurements
+ward3000 <- which(ward.count$freq > 3000 & ward.count$freq <= 5000)
+t1 <- xtabs(~ high.var20 + factor(Ward), glu[glu$Ward %in% ward3000, ])
+mosaicplot(t1, color = rainbow(length(t1)),
+           main = "High variability distribution in Wards with 3000 to 5000 measurements",
+           ylab = "Ward", xlab = "0: CV <= 20     1: CV > 20")
+t1
+
+
+# High variability by Ward with all measurements
+t.all <- xtabs(~ high.var30 + Ward, glu)
+
+# ratio high variability : low variability
+ratio <- t.all[2, ] / t.all[1, ]
+plot(ratio ~ colnames(t.all), type = "h", 
+     main = "Ratio high : low variability per Ward", 
+     ylab = "ratio", xlab = "Ward",
+     ylim = c(0, 6)
+     )
+abline(h = 1, col = 2)
+text(380, 5.7, "high variability: CV >30 %")
+
+# Glycemic control status
+library(plyr)
+library(dplyr)
+knitr::kable(as.data.frame(table(glu$glyc.control)))
+
+a <- glu %>% 
+    group_by(glyc.control, high.var30) %>% 
+    summarize(n = n())
+knitr::kable(a)
+
+# b <- glu %>% 
+#     group_by(Ward, high.var30) %>% 
+#     summarize(n = n())
+# knitr::kable(b)
+
+# CV by Ward
+cv.ward <- aggregate(glu$cv, by = list(Ward = glu$Ward), FUN = mean, na.rm = TRUE)
+head(cv.ward, 20)
+
+plot(cv.ward$x[order(cv.ward$x)] ~ cv.ward$Ward, type = "h")
+abline(h = 20, col = 3); abline(h = 30, col = 3)
+
+
+# % outlier per Ward
+# outlier: severe + pronounced hyper- + hypo- + severe hypoglycemia
+# total <- rep(NA, length(levels(glu$Ward)))
+# outliers <- rep(NA, length(levels(glu$Ward)))
+# for (w in 1:length(percent.outliers)) {  # w: Wards
+#     total[w] <- sum(glu$Ward == w)
+#     outliers[w] <- sum((glu$glyc.control == "severe hyperglycemia" | 
+#                glu$glyc.control == "pronounced hyperglycemia" |
+#                glu$glyc.control == "hypoglycemia" |
+#                glu$glyc.control == "severe hypoglycemia") & glu$Ward == w)
+# }
+# 
+# percent.outliers <- outliers/total*100
+# 
+# save(glu, outliers, total, percent.outliers, file = "STA490/glu_v04.RData")
+
+# load("STA490/glu_v04.RData")
+load("glu_v04.RData")
+
+plot(percent.outliers ~ levels(glu$Ward), type = "h",
+     main = "Percent outliers/Ward vs Ward")
+plot(percent.outliers ~ total, pch = "*", log = "x",
+     col= ifelse(percent.outliers >= 50, "red", "black"),
+     main = "Percent outliers/Ward vs. number of patients/Ward", cex = 1.5)
+text(1000, 85, "outliers:\nsevere hyperglycemia\npronounced hyperglycemia\nhypoglycemia\nsevere hypoglycemia")
+
+# How many patients were in the Wards with more than 50 % outliers?
+total[which(percent.outliers > 50)]
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

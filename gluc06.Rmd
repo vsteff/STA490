@@ -1,0 +1,135 @@
+---
+title: "Glucose Project Version 6"
+author: "Verena Steffen"
+output: html_document
+---
+
+```{r,echo=FALSE}
+# Clear workspace
+rm(list=ls())
+# Reset par
+resetPar <- function() {
+    dev.new()
+    op <- par(no.readonly = TRUE)
+    dev.off()
+    op
+}
+par(resetPar())
+# Set working directory
+setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+load("STA490/glu_v04.RData")
+```
+
+### Questions from Project Plan
+
+*Anthropometrics*
+
+- Age distribution
+- Sex ratio
+
+```{r}
+# Age distribution
+hist(glu$Age, main = "Age distribution")
+
+# Sex ratio
+sex.ratio <- sum(glu$Sex == "M") / sum(glu$Sex == "F")
+plot(glu$Sex, main = "Sex ratio", sub = paste("ratio M/F =", round(sex.ratio,2)))
+
+# Glucose per patient
+ranges <- c("severe hypoglycemia", 
+            "hypoglycemia",
+            "euglycemia",
+            "mild hyperglycemia",
+            "pronounced hyperglycemia",
+            "severe hyperglycemia")
+low.borders <- c(2.2, 4, 7.7, 10, 15, range(glu$Glu)[2])
+library(lattice)
+p1 <- xyplot(Glu ~ Time, groups = PID, 
+       data = glu[which(as.numeric(glu$PID) <= 50), ], 
+       type = "b", pch = "*", col = rainbow(50), cex = 2,
+       main = list("Glucose levels of 50 patients in 2014"), 
+       xlab = list("Month 2014"),
+       ylab = list("Glucose (mmol/l)"),
+       scales = list(y = list(log = TRUE, equispaced.log = FALSE)),
+       ylim = range(glu$Glu), 
+       panel = function(...) {
+           panel.xyplot(...)
+           panel.abline(h = log(low.borders, 10), lty = "dotted", col = "black")
+           panel.text(x = as.numeric(min(glu$Time)), 
+                      y = log(0.9*low.borders, 10), 
+                      ranges,  # text
+                      pos = 4)}  # left-bound
+       )
+print(p1)
+```
+
+
+*Blood glucose control*
+
+- Average BG (mmol/l)
+- Average BG (mmol/l) based on A1C (Nathan et. al. Diabetes Care 2008)
+- HbA1C (%)
+- BG measurements/patient (n)
+- % of values within glycemic ranges
+- Intraindividual % of values within, below and above glycemic target (7.8-10 mmol/l)
+- % of hypo- and hyperglycemic values
+    - Stratified by age, gender, department
+    - Diurnal variation (e.g. more hypoglycemic events at night?)
+- Blood glucose variability: e.g. SD, CV
+
+```{r}
+# Average BG
+summary(glu$Glu)
+
+# Average BG based on HbA1c?
+
+# HbA1c
+summary(glu$HbA1c.DCCT)
+summary(glu$HbA1c.IFCC)
+
+# % of values within glycemic ranges
+library(dplyr)
+a <- glu %>% 
+    group_by(glyc.control) %>% 
+    summarize(n = n())
+a
+
+```
+
+
+
+*Predictor of severe hypoglycaemia with BG<2.2 (e.g. prior BG≤3.9 during same admission)*
+
+*Comparison between blood glucose control and comorbidity factors*
+
+- Kidney dysfunction
+- Liver dysfunction
+- Dyslipidemia
+
+
+### Models
+
+```{r}
+glu2 <- glu[which(as.numeric(glu$PID)<1000), ]
+library(lme4)
+
+# Fit model
+mm1 <- lmer(log(Glu) ~ Lab + Sex + Ward + Age + Time.trunc + (1 | PID), data = glu2, REML = FALSE)
+plot(mm1, pch = "+")
+par(mfrow=c(1,2))
+acf(resid(mm1), pch = "+")
+pacf(resid(mm1), pch = "+")
+par(mfrow=c(1,1))
+
+# Compute heteroskedasticity-consistent covariance matrix
+# library(sandwich)
+# a <- vcovHC(mm1)
+
+
+```
+
+
+
+
+
+
