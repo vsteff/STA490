@@ -119,9 +119,8 @@ glu$Ward <- factor(glu$wardclean)
 # ward.encryption <- data.frame("short version" = 1:length(levels(glu$Ward)), "long version" = levels(glu$Ward))
 # write.csv(ward.encryption, "STA490/ward.encryption.csv", row.names = FALSE)
 
-glu2 <- glu
-
-save(glu2, file = "wardcols.RData")
+# glu2 <- glu
+# save(glu2, file = "wardcols.RData")
 
 
 hist(glu$Age)

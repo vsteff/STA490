@@ -79,8 +79,8 @@ A patient is diabetic if
 
 
 ```{r}
-# load("STA490/old versions/glu_v03.RData")
-load("old versions/glu_v03.RData")
+# load("STA490/glu_v04.RData")
+load("glu_v04.RData")
 
 par(mfrow=c(1,3),cex.axis=1, cex.lab=1, cex.main=1)
 hist(glu$HbA1c.IFCC); abline(v = 47.5, col = 2, lwd = 3)
