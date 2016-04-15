@@ -36,37 +36,14 @@ http://www.diabetes.co.uk/hba1c-units-converter.html
 
 A patient is diabetic if
 
-- HbA1c >= 6.5 % (equal to HbA1c >= 47.5 mmol/mol) **OR**
+- HbA1c >= 6.5 % (equal to HbA1c >= 48 mmol/mol) **OR**
 - Glu >=11.1 mmol/l
-
-```{r}
-# load("STA490/old versions/glu_v03.RData")
-load("old versions/glu_v03.RData")
-
-par(mfrow=c(1,3),cex.axis=1, cex.lab=1, cex.main=1)
-hist(glu$HbA1c.IFCC); abline(v = 47.5, col = 2, lwd = 3)
-hist(glu$HbA1c.DCCT); abline(v = 6.5, col = 2, lwd = 3)
-hist(glu$Glu); abline(v = 11.1, col = 2, lwd = 3)
-par(mfrow=c(1,1),cex.axis=1, cex.lab=1, cex.main=1)
-
-# Diabetic
-diab <- table(glu$diabetic)
-# in %
-diab.perc <- table(glu$diabetic)/sum(table(glu$diabetic))*100
-knitr::kable(round(rbind(diab, diab.perc), 2))
-
-boxplot(Glu ~ diabetic, data = glu, pch = "*", log = "y", 
-        main = "Glucose value vs. diabetic", 
-        xlab = "Diabetic no (0) and yes (1)",
-        ylab = "Blood glucose in mmol/l")
-abline(h = 11.1, col = 2)
-```
 
 
 ```{r,echo=FALSE}
 # Add column for diabetic yes/no
 # glu$diabetic <- ifelse((glu$Glu >= 11.1) |
-#                            (glu$HbA1c.IFCC >= 47.5 & !is.na(glu$HbA1c.IFCC)) |
+#                            (glu$HbA1c.IFCC >= 48 & !is.na(glu$HbA1c.IFCC)) |
 #                            (glu$HbA1c.DCCT >= 6.5) & !is.na(glu$HbA1c.DCCT), 1, 0)
 
 # # Define status according to glycemic control ranges
@@ -98,6 +75,30 @@ abline(h = 11.1, col = 2)
 #                                       "hypoglycemia",
 #                                       "severe hypoglycemia"))
 # save(glu, file = "STA490/glu_v03.RData")
+```
+
+
+```{r}
+# load("STA490/old versions/glu_v03.RData")
+load("old versions/glu_v03.RData")
+
+par(mfrow=c(1,3),cex.axis=1, cex.lab=1, cex.main=1)
+hist(glu$HbA1c.IFCC); abline(v = 47.5, col = 2, lwd = 3)
+hist(glu$HbA1c.DCCT); abline(v = 6.5, col = 2, lwd = 3)
+hist(glu$Glu); abline(v = 11.1, col = 2, lwd = 3)
+par(mfrow=c(1,1),cex.axis=1, cex.lab=1, cex.main=1)
+
+# Diabetic
+diab <- table(glu$diabetic)
+# in %
+diab.perc <- table(glu$diabetic)/sum(table(glu$diabetic))*100
+knitr::kable(round(rbind(diab, diab.perc), 2))
+
+boxplot(Glu ~ diabetic, data = glu, pch = "*", log = "y", 
+        main = "Glucose value vs. diabetic", 
+        xlab = "Diabetic no (0) and yes (1)",
+        ylab = "Blood glucose in mmol/l")
+abline(h = 11.1, col = 2)
 ```
 
 
