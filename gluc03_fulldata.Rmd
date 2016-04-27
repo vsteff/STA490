@@ -84,6 +84,8 @@ f <- which(month.day.year(glu$Time)$year != 14)
 # exclude
 glu <- glu[-c(a, b, c, d, e, f), ]
 nrow(glu)
+hist(glu$Age)
+
 
 # Clean variables
 glu$Lab <- factor(glu$Lab, levels = c("ClinChem", "POC"))
@@ -95,10 +97,10 @@ levels(glu$PID) <- 1:length(levels(glu$PID))
 
 
 ########################################### Wards ######################################
-wardsclean <- read.csv("Glucose monitoring UZH/Wardsclean.csv")
-load("ward.assign.RData")
-colnames(wardsclean) <- c("X", "name", "Ward")
-wardsclean$name <- as.character(wardsclean$name)
+# wardsclean <- read.csv("Glucose monitoring UZH/Wardsclean.csv")
+# load("STA490/ward.assign.RData")
+# colnames(wardsclean) <- c("X", "name", "Ward")
+# wardsclean$name <- as.character(wardsclean$name)
 
 # a <- Sys.time()
 # for (i in 1:length(glu$Ward)) {
@@ -111,19 +113,20 @@ wardsclean$name <- as.character(wardsclean$name)
 # b <- Sys.time()
 # b-a  # 7.7 hours
 
-
-glu$Ward.ano <- factor(glu$Ward)
-glu$Ward.number <- factor(glu$Ward)
-levels(glu$Ward.number) <- 1:length(levels(glu$Ward))
-glu$Ward <- factor(glu$wardclean)
-# ward.encryption <- data.frame("short version" = 1:length(levels(glu$Ward)), "long version" = levels(glu$Ward))
-# write.csv(ward.encryption, "STA490/ward.encryption.csv", row.names = FALSE)
-
 # glu2 <- glu
 # save(glu2, file = "wardcols.RData")
 
 
-hist(glu$Age)
+# glu$wardclean <- factor(glu2$wardclean)
+# glu$Ward.ano <- factor(glu$Ward)
+# glu$Ward.number <- factor(glu$Ward)
+# glu$Ward <- glu$wardclean
+# levels(glu$Ward.number) <- 1:length(levels(glu$Ward))
+
+# ward.encryption <- data.frame("short version" = 1:length(levels(glu$Ward)), "long version" = levels(glu$Ward))
+# write.csv(ward.encryption, "STA490/ward.encryption.csv", row.names = FALSE)
+
+# save(glu, file = "STA490/old versions/glu_v02b.RData")
 
 
 
