@@ -17,6 +17,7 @@ resetPar <- function() {
 par(resetPar())
 # Set working directory
 setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+# setwd("/home/c/vsteff/STA490_StatisticalConsulting/")
 # Load data
 # load("STA490/glu_v05.RData")
 
@@ -144,10 +145,15 @@ str(mm1)
 
 ```{r}
 pat.mean <- tapply(glu$Glu, glu$PID, mean)  # glu mean of every patient
+# pat.length.stay <- tapply(glu$Inpatient, glu$PID, length)  # wrong
+pat.cv <- tapply(glu$cv, glu$PID, mean)
+pat.sex <- as.factor(tapply(as.integer(glu$Sex), glu$PID, max))
+pat.sex <- factor(pat.sex, levels = c(1, 2), labels = c("f", "m"))
+pat.age <- as.integer(tapply(glu$Age, glu$PID, mean))
 
-int <- interaction(glu$PID, glu$Ward)
-
-
+hist(log(pat.mean))
+hist(pat.age)
+summary(pat.length.stay)
 ```
 
 
