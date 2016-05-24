@@ -1,0 +1,202 @@
+Einsendernr,Einsender,Name der Orgeinheit,Typ der OrgEinh,Typ1
+2006,EG OST,EG OST,EN,1
+2032,R MITTE 2,R MITTE2,EN,5
+2034,EG WEST,EG WEST,EN,1
+2037,O MITTE,O MITTE,EN,5
+2038,PERS,Personalaerztlicher Dienst,AM,1
+2042,G1 WEST,G1 WEST,EN,1
+2048,VORNE 4.,VORNE 4.,EN,6
+2218,DERP,Dermatologische Poliklinik,AM,1
+2222,ORTC,Orthopaedie Poliklinik privat,AM,6
+2243,ONKC,Medizinische Onkologie privat,MT,5
+2269,ALLP,Immun- + Allergologie Amb.,MT,1
+2331,ANGP,Angiologie/Gefaesschir. Poli.,MT,6
+2352,N NORD,N NORD,EN,6
+2372,O NORD,O NORD,EN,6
+2376,HGEP,Herz-Gefaesschirurgie Poli.,AM,6
+2381,G SUED,G SUED,EN,6
+2389,G NORD,G NORD,EN,6
+2395,G MITTE,G MITTE,EN,6
+2404,VCHC,Visz. ambulant Privatpatienten,AM,6
+2409,NCHC,Neurochirurgische Poliklinik p,AM,6
+2417,L MITTE,L MITTE,EN,1
+2423,HINTEN 3,HINTEN 3.,EN,6
+2425,NCHK,Neurochirurgie Bettenstation,AB,6
+2441,NOTC,Notfallstation Chirurgie,MT,2
+2623,GAST,Gastroenterologische Abteilung,MT,1
+2632,ROST,Strahlentherapie,MT,5
+2671,K SUED,K SUED,EN,1
+2931,HNVC,HNO Poliklinik privat,AM,6
+2935,ORTP,Orthopaedie Poliklinik,AM,6
+2942,HNOP,HNO Poliklinik,AM,6
+2953,WEST 2,WEST 2,EN,1
+2954,OST 2,OST 2,EN,1
+3027,SCTA,Schmerztherapie ambulant,AM,1
+3030,Q SUED,Q SUED,EN,6
+3040,KARD,Kardiologie,MT,1
+3044,Q NORD,Q NORD,EN,6
+3056,R NORD,R NORD,EN,5
+3059,R MITTE1,R MITTE1,EN,5
+3060,R SUED,R SUED,EN,1
+3064,Q MITTE,Q MITTE,EN,6
+3071,NEUP,Neurologische Poliklinik,AM,1
+3108,AIMA,Poliklinik Allg. Inn. Medizin,AM,1
+3170,RHES,Rheumatologische Poliklinik,AM,1
+3182,1OG,14C 1. OG,EN,1
+3301,HZLA,UKH-HZL Poliklinik,AM,5
+3316,SKGE,Schaedel-Kiefer+Gesichtschir.,AM,6
+3352,J SUED,J SUED,EN,1
+3353,J MITTE,J MITTE,EN,1
+3362,STOB,Stomaberatung,MT,1
+3389,M SUED,M SUED,EN,6
+3393,HZLC,UKH-HZL Privatsprechstunde,AM,5
+3407,P SUED,P SUED,EN,6
+3409,P MITTE,P MITTE,EN,6
+3414,NFZA,Notfallzentrum Ambulatorium,AM,2
+3435,O SUED,O SUED,EN,5
+3485,P NORD,P NORD,EN,6
+3602,ASH 2.OG,ASH 2.OG,EN,1
+3604,ASH 1.OG,ASH 1.OG,EN,1
+3618,K NORD,K NORD,EN,6
+3626,NUKL,Nuklearmedizin,MT,5
+3638,U1,U1 ASH,EN,6
+3743,N SUED,N SUED,EN,1
+3766,2OG,14C 2. OG,EN,1
+3783,L SUED,L SUED,EN,1
+3969,VORNE 3.,VORNE 3.,EN,6
+3972,UROC,Urologie ambulant privat,AM,6
+3975,UEBERW 4,UEBERW 4.,EN,3
+3983,UROA,Urologie Ambulatorium,AM,6
+4071,ENDC,Ambulante Privatpatienten,AM,1
+4088,KHTX,Kard.Herztranspl.Sprechstunde,AM,1
+4142,HINF,Infektologie,AM,1
+5017,AUGO,Augenklinik Orthoptik,MT,1
+5092,ENSW,Endokr.Stoffwechsel  Sprechst.,AM,1
+5111,GASC,Gastroenterolog. Privatpatient,AM,1
+5112,GBHF,Geburtshilfe Frauenklinik,AB,6
+5124,IBME,Klinik fuer Intensivmedizin,AB,3
+5131,KAPR,Kardiovask. Praevention+Rehab.,AM,1
+5134,KCHP,Kinderchirurgie  Poliklinik,AM,4
+5160,NEPH,Nephrologie,MT,1
+5167,NOTM,Notfallstation Medizin,MT,2
+5188,ORTK,Orthopaedische Klinik Betten,AB,6
+5195,PSFC,Privat Professor Surbek,AM,1
+5205,SKGC,Schaedel-Kiefer+Ges. Privat,AM,6
+5213,PANZ,P Aufnahmezimmer,EN,6
+5219,NEHY,Nephrologie Hypertonieabkl.,AM,1
+5225,B1,B1,EN,4
+5227,B3,B3,EN,4
+5228,E1,E1,EN,1
+5229,E2,E2,EN,1
+5231,F1,F1,EN,1
+5235,KMEP,Kindermedizinische Poliklinik,AM,4
+5238,PNEK,Pneumologische Sprechstunde,AM,1
+5241,E2 K,E2 K,EN,4
+5246,ANGC,Angiologie Privatsprechstunde,MT,6
+5252,KHKL,Kardiologie Herzkatheter Labor,MT,6
+5259,STUA,Studien ambulant,AM,1
+5286,ZSWP,Zentr. Seh/Wahrnehmungsstoerung,AM,1
+5296,GHSP,Geburtshilfe Stillberatung,AM,1
+5306,PNEC,Amb. Privatsprechstd. PNEU,AM,1
+5311,E108-09,BHH IMC E 108-09,EN,3
+5314,E120-21,BHH IMC E 120-21,EN,3
+5316,NCHP,Ambulatorium Neurochirurgie,AM,6
+5330,K MITTE,K MITTE,EN,6
+5336,INFC,Infektiologie privat,AM,1
+5339,IMCURO4,IMC Urologie 4. Stock,EN,6
+5340,C WEST,Bewachungsstation,EN,1
+5341,PMFC,Privat Professor Mueller,AM,1
+5342,B WEST,DERMA B West,EN,1
+5343,B OST,DERMA B Ost,EN,1
+5364,IRMP,Infektiologie Reisemedizin,AM,1
+5373,PRFC,Privatsprechstd. Dr. L. Raio,AM,1
+5388,IVFP,Med. unterst. Fortpflanzung,AM,1
+5389,P IMC,Intermediate Care P 126 / 127,EN,3
+5390,NUKK,Nuklearmedizin stationaer,AB,5
+5392,OSTP,Osteoporose Poli,AM,1
+5400,FGYP,Familienplanung Gynaekologie,AM,1
+5404,OCGP,OA Gynaekologie C,AM,1
+5421,B RHEUTK,B Tagesklinik Rheumatologie,EN,1
+5443,Q109TK,Q 109 Tagesklinik DMLL,EN,6
+5446,ZAEP,Zent. Adipositas Esspraevention,AM,1
+5450,KK K SU,Kinderklinik K Sued,EN,4
+5451,KK K NO,Kinderklinik K Nord,EN,4
+5452,KK J SU,Kinderklinik J Sued,EN,4
+5458,HEPC,Privatsprechstunde Hepatologie,AM,1
+5463,RADL,Diagnostische Radiologie,MT,1
+5466,ANGK,Angiologie Bettenstation P,AB,6
+5468,ZAWR_INO,Zentraler Aufwachraum INO,EN,3
+5478,FANP,Fast track Infusionstherapien,AM,1
+5489,KK HS,Kinderklinik HS,EN,4
+5492,N MITTE,N MITTE,EN,1
+5504,PSMA,Ambulatorium Psychosomatik,AM,1
+5506,DIAA,Diabetesstation Endokrinologie,AM,1
+5512,NPKA,Neuropaediatrie,AM,1
+5513,KMEB,Kindermedizin Tagesklinik,AB,4
+5519,ENDA,Endokrinologie Ambulatorium,AM,1
+5525,IPTM,Institut fuer Physiotherapie,MT,1
+5532,H NORD 1,H NORD 1,EN,6
+5533,H NORD 2,H NORD 2,EN,6
+5534,H SUED 1,H SUED 1,EN,6
+5535,H SUED 2,H SUED 2,EN,6
+5566,SWAN D,Pflegerische Einheit SWAN D,EN,5
+5567,SWAN C,Pflegerische Einheit SWAN C,EN,5
+5577,KK B IB,KK B IB,EN,4
+5579,OP HGEK,OPS Herz-Gefaesschirurgie,EN,6
+5583,OP NCHK,OPS Neurochirurgie,EN,6
+5590,OP ORTK,OPS Orthopaedie,EN,6
+5591,OP VMCK,OPS Viszeralchirurgie,EN,6
+5595,KK C SU,Kinderklinik C Sued,EN,4
+5604,KIKA,Kardiologie Kinder,AM,4
+5607,IN E GR,INO E Zone Gruen,EN,3
+5611,NOTA INO,Notfallstation A,EN,2
+5612,NOTB INO,Notfallstation B,EN,2
+5616,F-SUED,KIMC F-Sued,EN,3
+5618,INEGE 2,INO E Zone Gelb 2,EN,3
+5619,INEGE 1,INO E Zone Gelb 1,EN,3
+5620,INEBL 2,INO E Zone Blau 2,EN,3
+5621,INEBL 1,INO E Zone Blau 1,EN,3
+5626,EMGP,ENMG-Station,AM,1
+5632,HK Labor,Herzkatheterlabor,EN,6
+5633,L-STROKE,NRLK-Stroke Unit,EN,3
+5636,KK E NO,Kinderchirurgie KK E Nord,EN,4
+5637,KK E SU,Kinderchirurgie KK E Sued,EN,4
+5638,KK D NO,Kinderchirurgie KK D Nord,EN,4
+5639,NZKJ,Notfall Kinder und Jugendliche,MT,4
+5640,VMCP,Poliklinik Bauchzentrum,AM,1
+5655,AHFA,Kardiol. Angeborene Herzfehler,AM,1
+5660,PSTC,Privatspr. PD Dr  Stute Petra,AM,1
+5661,E113-115,BHH IMC E 113-15,EN,3
+5664,M NORD,M NORD,EN,6
+5665,IMC HG,IMC HG,EN,3
+5691,KARR,Kardiologie / Rhytmologie,MT,1
+5699,LMDA,Med. Dienstleistung ZLM,AM,1
+5700,SWEA,Schlaf-Wach-Epilepsie-Zentrum,AM,1
+6174,SENF,Senologie Frauenklinik,AM,1
+6240,PWFC,Privatsp. Prof. M. von Wolff,AM,1
+6246,FPLF,Familienplanung Frauenklinik,AM,1
+6264,GONF,Gynaek. Onkologie Frauenklinik,AM,5
+6422,PGBF,Poliklinik Geburtshilfe,AM,1
+6430,UROF,Urologie Frauenklinik,AM,6
+6431,PGYF,Poliklinik Gynaekologie,AM,1
+6441,USDF,Ultraschall Frauenklinik,MT,1
+6900,GBSF A3 2,Geburtsstation Frauenklinik,MT,6
+6912,ENAF,Endokrinologie FK Assistenten,AM,1
+6916,GYNF,Gynaekologie Notfall,AM,2
+6918,DYSF,Dysplasie Frauenklinik,AM,5
+8007,B SUED,B SUED,EN,1
+8010,F MITTE,F MITTE,EN,6
+8014,PLWP,Plast- u. Wiederherst. Privat,AM,6
+8022,J NORD,J NORD,EN,6
+8099,PNEU,Pneumologische Abteilung,MT,1
+8199,ONKP,Medizinische Onkologie,AM,5
+8453,HINTEN 4,HINTEN 4.,EN,6
+8503,AUGC,Augenpoliklinik privat,AM,1
+8511,AUGP,Augenpoliklinik,AM,1
+8556,PLWS,Plast- u. Wiederherst- Poli,AM,6
+8574,HAPO,Handchirurgische Poliklinik,AM,6
+8884,AIMC,Privat Allg. Innere Medizin,AM,1
+8970,KARE,Kardiale Rehabilitation,AM,1
+9323,NEPK,Nephrologie Kinderklinik,MT,4
+9413,HONK,Haemat.-Onk. Sprechst. Kikli,AM,5
+9499,GASK,Gastroenterologie Kinderklinik,MT,4

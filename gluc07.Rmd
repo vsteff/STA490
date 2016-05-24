@@ -1,0 +1,83 @@
+---
+title: "gluc07"
+author: "Verena Steffen"
+date: "May 23, 2016"
+output: html_document
+---
+
+```{r,echo=FALSE}
+# Clear workspace
+rm(list=ls())
+# Set working directory
+setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+# Load libraries
+library("knitr")
+library("lattice")
+library("plyr")
+library("dplyr")
+library("lme4")
+library("ggplot2")
+# Load data
+load("STA490/glu_v07_list.RData")
+glu <- data$glu
+patients <- data$patients
+timediff <- data$timediff
+```
+
+
+Get better ward description
+```{r}
+translation <- read.csv("STA490/Einheiten.csv")
+head(translation)
+
+translation$Einsender %in% glu$Ward
+# Not all listed Wards are in glu$Ward
+```
+
+
+NOT Wards
+```{r}
+# Subset NOT measurements
+not <- glu[startsWith(as.character(glu$Ward), "NOT"),]
+# Number of inpatient measurements NOT wards
+summary(not$Inpatient)
+pat <- tapply(not$Glu, not$PID, length)
+table(pat)
+
+# Only inpatients
+not.inp <- glu[startsWith(as.character(glu$Ward), "NOT") & glu$Inpatient == 1,]
+pat.inp <- tapply(not.inp$Glu, not.inp$PID, length)
+table(pat.inp)
+glu[glu$PID == 22608, c("Ward", "Glu", "Time")]  # max of measurement values in NOT wards
+```
+
+```{r}
+
+load("STA490/models.RData")
+
+# Modeling
+library("lqmm")
+fit1 <- lqmm(fixed = log(Glu) ~ Age + Sex + Ward, random = ~ 1 + Lab, group = PID, tau = 0.5, type = "normal", data = glu[1:10000, ])
+fit1
+plot(predict(fit1, newdata = 1:10000), ylim = c(-0.5, 4), pch = ".")
+plot(log(glu[1:10000, "Glu"]), ylim = c(-0.5, 4), pch = ".")
+
+
+fit2 <- lqmm(fixed = log(Glu) ~ Age + Sex + Ward, random = ~ 1 + Lab, group = PID, tau = 0.1, type = "normal", data = glu[1:10000, ])
+fit2
+plot(predict(fit2, newdata = 1:10000), ylim = c(-0.5, 4), pch = ".")
+plot(log(glu[1:10000, "Glu"]), ylim = c(-0.5, 4), pch = ".")
+
+dat <- data.frame(x = 1:10000, y=log(glu$Glu[1:10000]))
+qs <- 1:9/10
+ggplot(dat, aes(x,y)) + geom_point(cex=0.5) + geom_quantile(quantiles = qs) + theme_bw()
+
+dat <- data.frame(x = 1:nrow(glu), y=log(glu$Glu))
+qs <- 1:9/10
+pdf("glu_quantiles.pdf")
+ggplot(dat, aes(x,y)) + geom_point(cex=0.1) + geom_quantile(quantiles = qs) + theme_bw()
+dev.off()
+save(fit1, fit2, file = "STA490/models.RData")
+```
+
+
