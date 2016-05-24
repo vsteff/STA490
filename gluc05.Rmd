@@ -145,14 +145,20 @@ mosaicplot(t0, color = rainbow(length(t0)),
            ylab = "Ward", xlab = "0: CV <= 20     1: CV > 20", las = 0)
 t0
 # High variability by Ward with 3000 to 5,000 measurements
-ward3000 <- ward.count$Var1[which(ward.count$Freq > 3000 & ward.count$freq <= 5000)]
+ward3000 <- ward.count$Var1[which(ward.count$Freq > 3000 & ward.count$Freq <= 5000)]
 t1 <- xtabs(~ high.var20 + factor(Ward), glu[glu$Ward %in% ward3000, ])
 mosaicplot(t1, color = rainbow(length(t1)),
            main = "High variability distribution in Wards with 3000 to 5000 measurements",
            ylab = "Ward", xlab = "0: CV <= 20     1: CV > 20", las = 0)
-
 t1
 
+# High variability by Ward with 2000 - 3000 measurements
+ward2000 <- ward.count$Var1[which(ward.count$Freq > 2000 & ward.count$Freq <= 3000)]
+t2 <- xtabs(~ high.var20 + factor(Ward), glu[glu$Ward %in% ward2000, ])
+mosaicplot(t2, color = heat.colors(length(t2), alpha = 0.6),
+           main = "High variability distribution in Wards with 2000 - 3000 measurements",
+           ylab = "Ward", xlab = "0: CV <= 20     1: CV > 20", las = 1)
+t2
 
 # High variability by Ward with all measurements
 t.all <- xtabs(~ high.var30 + Ward, glu)

@@ -17,6 +17,16 @@ resetPar <- function() {
 par(resetPar())
 # Set working directory
 setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+
+# Load libraries
+library("knitr")
+library("lattice")
+library("plyr")
+library("dplyr")
+library("lme4")
+library("ggplot2")
+
+
 # setwd("/home/c/vsteff/STA490_StatisticalConsulting/")
 # Load data
 # load("STA490/glu_v05.RData")
@@ -26,8 +36,10 @@ setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA
 # 
 # save(data, file = "glu_v06_list.RData")
 
-load("STA490/glu_v06_list.RData")
+load("STA490/glu_v07_list.RData")
 glu <- data$glu
+patients <- data$patients
+timediff <- data$timediff
 ```
 
 ### Questions from Project Plan
@@ -103,7 +115,6 @@ a <- glu %>%
     group_by(glyc.control) %>% 
     summarize(n = n())
 a
-
 ```
 
 
@@ -136,25 +147,160 @@ str(mm1)
 # Compute heteroscedasticity-consistent covariance matrix
 # library(sandwich)
 # a <- vcovHC(mm1)
-
-
 ```
 
 
 ### Patient wise summary
 
 ```{r}
+CV <- function(mean, sd) (sd/mean)*100
+
 pat.mean <- tapply(glu$Glu, glu$PID, mean)  # glu mean of every patient
-# pat.length.stay <- tapply(glu$Inpatient, glu$PID, length)  # wrong
 pat.cv <- tapply(glu$cv, glu$PID, mean)
 pat.sex <- as.factor(tapply(as.integer(glu$Sex), glu$PID, max))
-pat.sex <- factor(pat.sex, levels = c(1, 2), labels = c("f", "m"))
+pat.sex <- factor(pat.sex, levels = c(1, 2), labels = c("F", "M"))
 pat.age <- as.integer(tapply(glu$Age, glu$PID, mean))
+pat.diab <- as.factor(tapply(glu$diabetic, glu$PID, mean))
+pat.no.meas <- ddply(data.frame(glu$Inpatient, glu$PID),
+                  ~ glu.PID, summarise,
+                  no.meas = sum(as.integer(glu.Inpatient)-1))$no.meas
+
+# Length of stay
+stays <- aggregate(Glu ~ stay + PID, data = glu[which(glu$Inpatient == 1), ], 
+               function(x) sd(x, na.rm=T)/mean(x,na.rm=T)*100)
+hist(stays$Glu, xlim = c(0, 50), breaks = 30, xlab = "CV per stay")
+head(stays, 20)
+
+stays2 <- aggregate(Time ~ stay + PID, data = glu[which(glu$Inpatient == 1), ], 
+               function(x) max(x) - min(x), units = "days")
+head(stays2)
+
+
+
+
+# timediff <- tapply(glu$Time, glu$PID, diff)
+# timediff <- lapply(timediff, as.numeric, units = "days")
+# head(timediff, 20)
+
+patients <- data.frame(mean = pat.mean, 
+                       cv = pat.cv,
+                       sex = pat.sex,
+                       age = pat.age,
+                       no.meas = pat.no.meas,
+                       diab = pat.diab)
+
+
+
+```
+
+```{r}
+# Plots
+nrow(patients)
 
 hist(log(pat.mean))
 hist(pat.age)
-summary(pat.length.stay)
+plot(pat.cv ~ pat.stay, pch = 16, cex = 0.5, col = "#EB811B98",
+     main = "Patient CV vs. length of stay",
+     xlab = "length of stay", ylab = "CV")
+boxplot(pat.cv[which(pat.stay > 0)] ~ pat.stay[which(pat.stay > 0)], 
+     pch = 16, cex = 0.5, col = "#EB811B98", 
+     # log = "y",
+     main = "Inpatient CV vs. length of stay",
+     xlab = "length of stay (days)", ylab = "CV (%)")
+
+
+library("ggplot2")
+df <- data.frame(x = glu$Time, y = glu$Glu)
+ggplot(df, aes(x=x,y=y)) + geom_point(shape=20,alpha=0.01) + theme_bw() + geom_smooth() + coord_trans(y = "log10") + ylim(5, 25)
+
+ggplot(df,aes(x=x,y=y)) + stat_binhex() + theme_bw()
+
+smoothScatter(df, log = "y", ylim = c(0.5, 50))
 ```
 
 
+
+```{r}
+# Store data in list
+## data <- list(glu = glu, diab = diab, diabetic.patients = diabetic.patients, npatients = npatients, outliers = outliers, percent.outliers = percent.outliers, total = total, patients = patients)
+# 
+# glu$Ward <- gsub("\xd9", "ue", glu$Ward)
+# glu$Ward <- as.factor(glu$Ward)
+# data$glu <- glu
+# save(data, file = "STA490/glu_v06_list.RData")
+```
+
+
+```{r}
+# Flag public holidays
+# glu$day <- weekdays(glu$Time)
+# Mon <- which(glu$day == "Montag")
+# Tue <- which(glu$day == "Dienstag")
+# Wed <- which(glu$day == "Mittwoch")
+# Thu <- which(glu$day == "Donnerstag")
+# Fri <- which(glu$day == "Freitag")
+# Sat <- which(glu$day == "Samstag")
+# Sun <- which(glu$day == "Sonntag")
+# days <- c(Mon = length(Mon),
+#           Tue = length(Tue),
+#           Wed = length(Wed),
+#           Thu = length(Thu),
+#           Fri = length(Fri),
+#           Sat = length(Sat),
+#           Sun = length(Sun))
+# 
+# public.holidays.bern2014 <- c("14-01-01",  # Neujahr
+#                               "14-01-02",  # Berchtoldstag
+#                               "14-04-18",  # Karfreitag
+#                               "14-04-21",  # Ostermontag
+#                               "14-05-29",  # Auffahrt
+#                               "14-06-09",  # Pfingstmontag
+#                               "14-08-01",  # Nationalfeiertag Schweiz
+#                               "14-12-25",  # Weihnachten
+#                               "14-12-26"   # Stephanstag
+#                               )
+# 
+# l <- numeric(length(public.holidays.bern2014))
+# ind.ph <- NULL
+# for (i in (1:length(public.holidays.bern2014))) {
+#   ind.ph <- c(ind.ph, which(startsWith(as.character(glu$Time),
+#                                    public.holidays.bern2014[i])))
+#   l[i] <- length(ind.ph)
+# }
+# 
+# days <- c(days, "Publ. hol." = sum(l))
+# barchart(days, xlab = list("Glucose measurements"), col = "grey")
+# 
+# glu$holiday <- ifelse(glu$day == "Sonntag", TRUE, FALSE)
+# glu$holiday[ind.ph] <- TRUE
+```
+
+```{r}
+# Define number of inpatient stays
+
+# a <- Sys.time()
+# stay <- list()
+# for (i in 1:nrow(patients)) {
+#   x <- glu[glu$PID == i, "Inpatient"]
+#   y <- rle(as.integer(x)-1)
+#   v <- NULL
+#   for (j in (1:length(y$values))) {
+#     v <- c(v, rep(y$values[j]*j, y$lengths[j]))
+#     stay[[i]] <- v
+#   }
+# }
+# glu$stay <- unlist(stay)
+# b <- Sys.time()
+# b-a
+```
+
+
+
+
+```{r}
+# # Save Data
+# data$timediff <- timediff
+# data$glu <- glu
+# save(data, file = "STA490/glu_v07_list.RData")
+```
 
