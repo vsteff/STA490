@@ -68,16 +68,17 @@ fit2
 plot(predict(fit2, newdata = 1:10000), ylim = c(-0.5, 4), pch = ".")
 plot(log(glu[1:10000, "Glu"]), ylim = c(-0.5, 4), pch = ".")
 
-dat <- data.frame(x = 1:10000, y=log(glu$Glu[1:10000]))
-qs <- 1:9/10
-ggplot(dat, aes(x,y)) + geom_point(cex=0.5) + geom_quantile(quantiles = qs) + theme_bw()
-
-dat <- data.frame(x = 1:nrow(glu), y=log(glu$Glu))
+dat <- data.frame(x = 1:100000, y=log(glu$Glu[1:100000]))
 qs <- 1:9/10
 pdf("glu_quantiles.pdf")
-ggplot(dat, aes(x,y)) + geom_point(cex=0.1) + geom_quantile(quantiles = qs) + theme_bw()
+ggplot(dat, aes(x,y)) + geom_point(cex=0.2) + geom_quantile(quantiles = qs) + theme_bw()
 dev.off()
-save(fit1, fit2, file = "STA490/models.RData")
+
+# dat <- data.frame(x = 1:nrow(glu), y=log(glu$Glu))
+# qs <- 1:9/10
+# ggplot(dat, aes(x,y)) + geom_point(cex=0.1) + geom_quantile(quantiles = qs) + theme_bw()
+
+save(fit1, fit2, file = "models.RData")
 ```
 
 
