@@ -110,14 +110,28 @@ length(IFCC.na)
 length(DCCT.na)
 length(intersect(IFCC.na, DCCT.na))
 
+# IFCC to DCCT
+glu$dcct <- glu$HbA1c.IFCC/10.929+2.15
+mol <- (c(0, 5, 10, 15)-2.15)*10.929
 
 # Scatter plots
 pdf(file = "lipid.pdf")
-plot(Glu ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
-plot(TG ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
-plot(HDL ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
-plot(LDL ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
-plot(LDL.calc ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6, ylim=c(0,10))
+p1 <- ggplot(glu, aes(x=HbA1c.IFCC, y=Glu))
+p2 <- ggplot(glu, aes(x=HbA1c.IFCC, y=TG))
+p3 <- ggplot(glu, aes(x=HbA1c.IFCC, y=HDL))
+p4 <- ggplot(glu, aes(x=HbA1c.DCCT, y=LDL))
+p5 <- ggplot(glu, aes(x=HbA1c.IFCC, y=LDL.calc))
+
+p1 + geom_point(size=1, alpha=0.3) + theme_bw()
+
+p4 + geom_point(size=1, alpha=0.3, col=factor(glu$diabetic+1), group=factor(glu$diabetic+1)) + theme_bw() + geom_point(aes(x=HbA1c.DCCT, y=LDL.calc), alpha=0.3, size=1, group=factor(glu$diabetic+1)) + scale_x_continuous(name="HbA1c", breaks = c(0, 5, 10, 15, 17.5), labels = c("0%\n0", "5%\n31.1", "10%\n85.8", "15%\n140", "\n(mmol/mol)")) + scale_color_manual(values=c("a"="black","b"="red"))
+
+p4
+
+#+ scale_color_manual(breaks = c(1,2), values=c("black"="black","red"="red"), labels=c("not diabetic", "diabetic")) #+ theme(legend.position=c(15, 13))
+
+interaction(glu$LDL, glu$LDL.calc)
+
 dev.off()
 
 

@@ -17,7 +17,7 @@ rm(list=ls())
 
 ### Set wd
 setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
-setwd("/home/c/vsteff/STA490_StatisticalConsulting")
+# setwd("/home/c/vsteff/STA490_StatisticalConsulting")
 
 ### Load data
 glu <- read.csv("Glucose monitoring UZH/Glucose_2014_anon.csv", sep=";", stringsAsFactors=FALSE)
@@ -128,12 +128,11 @@ glu <- glu[order(glu$PID, glu$Time), ]
 glu$Inpatient <- rep(NA, nrow(glu))
 # loop
 npatients <- length(unique(glu$PID))  # 41428
-a <- Sys.time()
 for (i in 1:npatients) {  # i: patient
   pat.time <- glu[which(as.numeric(glu$PID) == i), "Time.trunc"]
-  
+
   j <- 1  # j: time point of patient i
-  
+
   while (j <= (length(pat.time))) {
     if (length(pat.time) == 1) {
       glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
@@ -142,7 +141,7 @@ for (i in 1:npatients) {  # i: patient
       if (j == 1) {
         if (diff(c(pat.time[j], pat.time[j+1])) > 1) {
           glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
-        } 
+        }
         else {
           glu$Inpatient[as.numeric(glu$PID) == i][j] <- 1  # "yes"
         }
@@ -150,7 +149,7 @@ for (i in 1:npatients) {  # i: patient
       else if (j == length(pat.time)) {
         if (diff(c(pat.time[j-1], pat.time[j])) > 1) {
           glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
-        } 
+        }
         else {
           glu$Inpatient[as.numeric(glu$PID) == i][j] <- 1  # "yes"
         }
@@ -158,7 +157,7 @@ for (i in 1:npatients) {  # i: patient
       else {
         if (diff(c(pat.time[j-1], pat.time[j])) <= 1 | diff(c(pat.time[j], pat.time[j+1])) <= 1) {
           glu$Inpatient[as.numeric(glu$PID) == i][j] <- 1  # "yes"
-        } 
+        }
         else {
           glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
         }
@@ -168,21 +167,18 @@ for (i in 1:npatients) {  # i: patient
   }
 }  # takes about 3.5 hours
 glu$Time.trunc <- NULL  # do not need it anymore
-b <- Sys.time()
-b-a
 
 ### High variability
 # Calculate patient CV (%)
 CV <- function(mean, sd) (sd/mean)*100
 glu$cv <- rep(NA, nrow(glu))
-
 for (i in 1:npatients) {  # i: patient
     pat.glu <- glu[which(as.numeric(glu$PID) == i), "Glu"]
     pat.inp <- glu[which(as.numeric(glu$PID) == i), "Inpatient"]
     glu[which(as.numeric(glu$PID) == i), "cv"] <- ifelse(pat.inp == TRUE, CV(mean(pat.glu), sd(pat.glu)), NA)
-}
+}  # takes about 1.5 hours
 # Add column for high variability inpatients
 glu$high.var20 <- ifelse(glu$cv > 20, 1, 0)
-
-# save(glu, file = "STA490/glu_clean.RData")
+save(glu, file = "STA490/glu_clean.RData")
 load("STA490/glu_clean.RData")
+summary(glu)
