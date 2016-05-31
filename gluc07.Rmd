@@ -68,17 +68,73 @@ fit2
 plot(predict(fit2, newdata = 1:10000), ylim = c(-0.5, 4), pch = ".")
 plot(log(glu[1:10000, "Glu"]), ylim = c(-0.5, 4), pch = ".")
 
-dat <- data.frame(x = 1:100000, y=log(glu$Glu[1:100000]))
+dat <- data.frame(x = 1:10000, y=log(glu$Glu[1:10000]))
 qs <- 1:9/10
-pdf("glu_quantiles.pdf")
+#pdf("glu_quantiles.pdf")
 ggplot(dat, aes(x,y)) + geom_point(cex=0.2) + geom_quantile(quantiles = qs) + theme_bw()
-dev.off()
+#dev.off()
 
 # dat <- data.frame(x = 1:nrow(glu), y=log(glu$Glu))
 # qs <- 1:9/10
 # ggplot(dat, aes(x,y)) + geom_point(cex=0.1) + geom_quantile(quantiles = qs) + theme_bw()
 
-save(fit1, fit2, file = "models.RData")
+# save(fit1, fit2, file = "models.RData")
 ```
+
+
+
+```{r}
+# Other biomarkers
+colnames(glu)[4:17]
+
+missings <- apply(glu[, 4:17], 2, function(x) sum(is.na(x)))
+nrow(glu)-missings
+
+lip <- c("CHOL", "TG", "HDL", "LDL", "LDL.calc")
+x11()
+xyplot(glu[, lip[1]] ~ glu[, "HbA1c.DCCT"], ylab = lip[1])
+xyplot(glu[, lip[1]] ~ glu[, "HbA1c.IFCC"], ylab = lip[1])
+
+i <- 1
+while (i <= length(lip)) {
+  p1 <- plot(glu[, lip[i]] ~ glu[, "HbA1c.DCCT"], ylab = lip[i])
+  p2 <- plot(glu[, lip[i]] ~ glu[, "HbA1c.IFCC"], ylab = lip[i])
+  i <- i + 1
+}
+
+# both scales represent the same patients
+plot(HbA1c.IFCC ~ HbA1c.DCCT, data = glu, pch = 16, cex = 0.6)
+IFCC.na <- which(is.na(glu[, "HbA1c.IFCC"]))
+DCCT.na <- which(is.na(glu[, "HbA1c.DCCT"]))
+length(IFCC.na)
+length(DCCT.na)
+length(intersect(IFCC.na, DCCT.na))
+
+
+# Scatter plots
+pdf(file = "lipid.pdf")
+plot(Glu ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
+plot(TG ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
+plot(HDL ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
+plot(LDL ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6)
+plot(LDL.calc ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6, ylim=c(0,10))
+dev.off()
+
+
+```
+
+
+```{r}
+plot(HDL ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6, col = Sex)
+legend("topright", as.character(unique(glu$Sex)), col= 1:2, pch = 16)
+
+xyplot(HDL ~ HbA1c.IFCC, group = Ward, data = glu)
+       #auto.key = list(space = "right"))
+```
+
+
+
+
+
 
 
