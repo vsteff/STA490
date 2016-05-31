@@ -17,6 +17,7 @@ rm(list=ls())
 
 ### Set wd
 setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
+setwd("/home/c/vsteff/STA490_StatisticalConsulting")
 
 ### Load data
 glu <- read.csv("Glucose monitoring UZH/Glucose_2014_anon.csv", sep=";", stringsAsFactors=FALSE)
@@ -76,7 +77,6 @@ range(glu$YOB, na.rm = TRUE)
 # Add Age column
 glu$Age <- rep(2014, nrow(glu)) - glu$YOB
 
-
 ### Exclude some patients
 # 1. Lab = Morphologie (NA)  # 3
 a <- which(is.na(glu$Lab))
@@ -113,7 +113,76 @@ glu <- merge(glu, wardsclean, by="Ward.anon", all=TRUE)
 # Correct special character
 glu$Ward <- factor(gsub("\xd9", "ue", as.character(glu$Ward)))
 
-
-npatients <- length(unique(glu$PID))  # 41429
-
+### Check data
 summary(glu)
+
+### Inpatient definition
+# Add column truncated date for inpatient definition
+library("lubridate")
+glu$Time.trunc <- floor_date(glu$Time, unit = "day")
+# Order data after PID and Time
+glu$Time.trunc <- as.chron(glu$Time.trunc)
+glu <- glu[order(glu$PID, glu$Time), ]
+# Define inpatient factor
+# Inpatient = at least two successive Glu values on different days
+glu$Inpatient <- rep(NA, nrow(glu))
+# loop
+npatients <- length(unique(glu$PID))  # 41428
+a <- Sys.time()
+for (i in 1:npatients) {  # i: patient
+  pat.time <- glu[which(as.numeric(glu$PID) == i), "Time.trunc"]
+  
+  j <- 1  # j: time point of patient i
+  
+  while (j <= (length(pat.time))) {
+    if (length(pat.time) == 1) {
+      glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
+    }
+    else {
+      if (j == 1) {
+        if (diff(c(pat.time[j], pat.time[j+1])) > 1) {
+          glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
+        } 
+        else {
+          glu$Inpatient[as.numeric(glu$PID) == i][j] <- 1  # "yes"
+        }
+      }
+      else if (j == length(pat.time)) {
+        if (diff(c(pat.time[j-1], pat.time[j])) > 1) {
+          glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
+        } 
+        else {
+          glu$Inpatient[as.numeric(glu$PID) == i][j] <- 1  # "yes"
+        }
+      }
+      else {
+        if (diff(c(pat.time[j-1], pat.time[j])) <= 1 | diff(c(pat.time[j], pat.time[j+1])) <= 1) {
+          glu$Inpatient[as.numeric(glu$PID) == i][j] <- 1  # "yes"
+        } 
+        else {
+          glu$Inpatient[as.numeric(glu$PID) == i][j] <- 0  # "no"
+        }
+      }
+    }
+    j <- j+1
+  }
+}  # takes about 3.5 hours
+glu$Time.trunc <- NULL  # do not need it anymore
+b <- Sys.time()
+b-a
+
+### High variability
+# Calculate patient CV (%)
+CV <- function(mean, sd) (sd/mean)*100
+glu$cv <- rep(NA, nrow(glu))
+
+for (i in 1:npatients) {  # i: patient
+    pat.glu <- glu[which(as.numeric(glu$PID) == i), "Glu"]
+    pat.inp <- glu[which(as.numeric(glu$PID) == i), "Inpatient"]
+    glu[which(as.numeric(glu$PID) == i), "cv"] <- ifelse(pat.inp == TRUE, CV(mean(pat.glu), sd(pat.glu)), NA)
+}
+# Add column for high variability inpatients
+glu$high.var20 <- ifelse(glu$cv > 20, 1, 0)
+
+# save(glu, file = "STA490/glu_clean.RData")
+load("STA490/glu_clean.RData")

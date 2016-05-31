@@ -185,6 +185,7 @@ Version \of \versiondate
 \newcommand{\pkg}[1]{\texttt{#1}}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
+% \SweaveOpts{concordance=TRUE}
 
 \pagestyle{standard}
 \mytitle{Analysis for \client}{\subtitle}
@@ -192,12 +193,26 @@ Version \of \versiondate
 
 \bigskip
 
-%\hrule
-%\pagebreak
-
 % =======Some Initial settings for R==============
 
-%========End of Initial Settings for R============
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 % =======================================
 \section{Research Questions} \label{sec:questions}
@@ -218,11 +233,11 @@ date variables.
 
 % Table
 % -----
-% latex table generated in R 3.3.0 by xtable 1.8-2 package
-% Mon May 30 16:39:35 2016
+% latex table generated in R 3.2.1 by xtable 1.7-4 package
+% Tue May 31 14:18:16 2016
 \begin{table}[ht]
 \centering
-\begingroup\footnotesize
+{\footnotesize
 \begin{tabular}{lrrrrrrrr}
  {\bf Variable} & n & Min & $q_1$ & $\eta$ & $\mu$ & $q_3$ & Max & $\sigma$ \\ 
   \hline
@@ -231,7 +246,7 @@ Sepal.Length & 150 & 4.30 & 5.10 & 5.80 & 5.84 & 6.40 & 7.90 & 0.83 \\
   Petal.Length & 150 & 1.00 & 1.60 & 4.35 & 3.76 & 5.10 & 6.90 & 1.77 \\ 
   Petal.Width & 150 & 0.10 & 0.30 & 1.30 & 1.20 & 1.80 & 2.50 & 0.76 \\ 
   \end{tabular}
-\endgroup
+}
 \caption{Descriptive statistics of iris data.} 
 \label{tab:iris}
 \end{table}
@@ -334,18 +349,51 @@ nunc. Aliquam dolor odio, commodo pretium, ultricies non, pharetra
 in, velit. Integer arcu est, nonummy in, fermentum faucibus, egestas
 vel, odio. 
 
-\begin{kframe}
+% latex table generated in R 3.2.1 by xtable 1.7-4 package
+% Tue May 31 14:18:16 2016
+\begin{table}[!h]
+\centering
+{\footnotesize
+\begin{tabular}{rrrr}
+  \hline
+ & Coefficient & 95\% confidence interval & $p$-value \\ 
+  \hline
+Intercept & 2.17 & from 1.62 to 2.72 & $<$ 0.0001 \\ 
+  Sepal.Width & 0.50 & from 0.33 to 0.67 & $<$ 0.0001 \\ 
+  Petal.Length & 0.83 & from 0.69 to 0.96 & $<$ 0.0001 \\ 
+  Petal.Width & -0.32 & from -0.61 to -0.02 & 0.039 \\ 
+  Speciesversicolor & -0.72 & from -1.20 to -0.25 & 0.003 \\ 
+  Speciesvirginica & -1.02 & from -1.68 to -0.36 & 0.003 \\ 
+   \hline
+\end{tabular}
+}
+\caption{Linear regression model choosing some columns.} 
+\label{tab:regmod1}
+\end{table}
+% latex table generated in R 3.2.1 by xtable 1.7-4 package
+% Tue May 31 14:18:16 2016
+\begin{table}[!h]
+\centering
+{\footnotesize
+\begin{tabular}{rrrr}
+  \hline
+ & Coefficient & 95\%-confidence interval & $p$-value \\ 
+  \hline
+Intercept & 6.53 & from 5.58 to 7.47 & $<$ 0.0001 \\ 
+  Width Sepal & -0.22 & from -0.53 to 0.08 & 0.15 \\ 
+   \hline
+\end{tabular}
+}
+\caption{Linear regression model with adapted row names.} 
+\label{tab:regmod2}
+\end{table}
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}tableRegression"{}}}
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}tableRegression"{}}}\end{kframe}
-
-% latex table generated in R 3.3.0 by xtable 1.8-2 package
-% Mon May 30 16:39:36 2016
+% latex table generated in R 3.2.1 by xtable 1.7-4 package
+% Tue May 31 14:18:17 2016
 \begin{table}[!ht]
 \centering
-\begingroup\footnotesize
+{\footnotesize
 \begin{tabular}{rcccc}
   \hline
 Sepal.Length & Sepal.Width & Petal.Length & Petal.Width & Species \\ 
@@ -358,15 +406,15 @@ Sepal.Length & Sepal.Width & Petal.Length & Petal.Width & Species \\
   5.40 & 3.90 & 1.70 & 0.40 & setosa \\ 
    \hline
 \end{tabular}
-\endgroup
+}
 \caption{First six records of the iris dataset.} 
 \label{tbl:head}
 \end{table}
-% latex table generated in R 3.3.0 by xtable 1.8-2 package
-% Mon May 30 16:39:36 2016
+% latex table generated in R 3.2.1 by xtable 1.7-4 package
+% Tue May 31 14:18:17 2016
 \begin{table}[!ht]
 \centering
-\begingroup\footnotesize
+{\footnotesize
 \begin{tabular}{r|cc}
   \hline Species & \multicolumn{2}{c}{Petal.Width < 1.5} \\ & FALSE & TRUE \\ 
   \hline
@@ -375,7 +423,7 @@ setosa &   0 &  50 \\
   virginica &  49 &   1 \\ 
    \hline
 \end{tabular}
-\endgroup
+}
 \caption{Contingency table for iris data.} 
 \label{tbl:cont}
 \end{table}
@@ -395,13 +443,13 @@ setosa &   0 &  50 \\
 
 {\bf \prog{R} version and packages used to generate this report:}
 
-\prog{R} version: \textsf{R version 3.3.0 (2016-05-03)}
+\prog{R} version: \textsf{R version 3.2.1 (2015-06-18)}
 
 Base packages: \textsf{stats, graphics, grDevices, utils, datasets, methods, base}
 
-Other packages: \textsf{ggplot2, reporttools, xtable, RColorBrewer, knitr}
+Other packages: \textsf{lqmm, lme4, Matrix, dplyr, plyr, ggplot2, lattice, RColorBrewer, biostatUZH, survival, reporttools, xtable, knitr}
 
-This document was generated on Mai 30, 2016 at 16:39.
+This document was generated on May 31, 2016 at 14:18.
 
 
 
