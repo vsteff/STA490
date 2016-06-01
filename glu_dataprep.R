@@ -17,7 +17,7 @@ rm(list=ls())
 
 ### Set wd
 setwd("/home/vreni/Dropbox/Zürich/Uni Zürich Biostatistik Master/4_FS_2016/STA490_StatisticalConsulting")
-# setwd("/home/c/vsteff/STA490_StatisticalConsulting")
+setwd("/home/c/vsteff/STA490_StatisticalConsulting")
 
 ### Load data
 glu <- read.csv("Glucose monitoring UZH/Glucose_2014_anon.csv", sep=";", stringsAsFactors=FALSE)
@@ -85,51 +85,57 @@ b <- c(which(glu$Glu > 70), which(glu$Glu <= 0))
 # 3. NA data in Sex  # 1,117
 c <- which(is.na(glu$Sex))
 # 4. Truncate Age (exclude patients < 3 years)  # 19,209
-d <- c(which(glu$Age < 3), which(glu$Age > 99), which(is.na(glu$Age)))
+d <- c(which(glu$Age < 3), which(glu$Age > 99), which(is.na(glu$YOB)))
 # 6. data not from 2014  # 118,805
 library(chron)
 e <- c(which(month.day.year(glu$Time)$year != 14), which(is.na(glu$Time)))
 ## exclude
 exc <- c(a, b, c, d, e)
 glu <- glu[-unique(exc), ]
-glu[-which.max(glu$Time), ]
-# because there was one 2015 value not detected by month.day.year()
+glu <- glu[-which.max(glu$Time), ]
+glu <- glu[-which.max(glu$Time), ]
+glu <- glu[-which.max(glu$Time), ]
+glu[which.max(glu$Time), ]
+# because there were three 2015 values not detected by month.day.year()
 
 ### Simplify anonymous factor variables
 ## ANR
-glu$ANR <- factor(glu$ANR.anon)
+glu$ANR <- glu$ANR.anon <- factor(glu$ANR.anon)
 levels(glu$ANR) <- 1:length(levels(glu$ANR))
 ## PID
-glu$PID <- factor(glu$PID.anon)
+glu$PID <- glu$PID.anon <- factor(glu$PID.anon)
 levels(glu$PID) <- 1:length(levels(glu$PID))
 ## Ward
-glu$Ward.number <- factor(glu$Ward.anon)
+glu$Ward.number <- glu$Ward.anon <- factor(glu$Ward.anon)
 levels(glu$Ward.number) <- 1:length(levels(glu$Ward.number))
 # Decrypt Ward.anon
 wardsclean <- read.csv("Glucose monitoring UZH/Wardsclean.csv")
 colnames(wardsclean) <- c("X", "Ward", "Ward.anon")
 wardsclean <- as.data.table(wardsclean[, 2:3])
 glu <- merge(glu, wardsclean, by="Ward.anon", all=TRUE)
+glu <- glu[-which(is.na(glu$Ward.number)), ]  # remove "extra" wards that are not in dataset but were merged
 # Correct special character
 glu$Ward <- factor(gsub("\xd9", "ue", as.character(glu$Ward)))
 
 ### Check data
 summary(glu)
 
+# Order data after PID and Time
+glu <- glu[order(glu$PID, glu$Time), ]
+
+
 ### Inpatient definition
 # Add column truncated date for inpatient definition
 library("lubridate")
 glu$Time.trunc <- floor_date(glu$Time, unit = "day")
-# Order data after PID and Time
 glu$Time.trunc <- as.chron(glu$Time.trunc)
-glu <- glu[order(glu$PID, glu$Time), ]
 # Define inpatient factor
 # Inpatient = at least two successive Glu values on different days
 glu$Inpatient <- rep(NA, nrow(glu))
 # loop
 npatients <- length(unique(glu$PID))  # 41428
 for (i in 1:npatients) {  # i: patient
-  pat.time <- glu[which(as.numeric(glu$PID) == i), "Time.trunc"]
+  pat.time <- as.data.frame(glu)[which(as.numeric(glu$PID) == i), "Time.trunc"]
 
   j <- 1  # j: time point of patient i
 
@@ -171,12 +177,13 @@ glu$Time.trunc <- NULL  # do not need it anymore
 ### High variability
 # Calculate patient CV (%)
 CV <- function(mean, sd) (sd/mean)*100
-glu$cv <- rep(NA, nrow(glu))
+glu$cv <- rep(0, nrow(glu))
 for (i in 1:npatients) {  # i: patient
-    pat.glu <- glu[which(as.numeric(glu$PID) == i), "Glu"]
-    pat.inp <- glu[which(as.numeric(glu$PID) == i), "Inpatient"]
-    glu[which(as.numeric(glu$PID) == i), "cv"] <- ifelse(pat.inp == TRUE, CV(mean(pat.glu), sd(pat.glu)), NA)
-}  # takes about 1.5 hours
+    pat.glu <- as.data.frame(glu)[which(as.numeric(glu$PID) == i), "Glu"]
+    pat.inp <- as.data.frame(glu)[which(as.numeric(glu$PID) == i), "Inpatient"]
+    glu[which(as.numeric(glu$PID) == i), ]$cv <- ifelse(pat.inp == TRUE, CV(mean(pat.glu), sd(pat.glu)), NA)
+}  # takes about 2.6 hours
+
 # Add column for high variability inpatients
 glu$high.var20 <- ifelse(glu$cv > 20, 1, 0)
 save(glu, file = "STA490/glu_clean.RData")
