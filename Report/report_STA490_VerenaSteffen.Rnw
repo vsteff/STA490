@@ -25,7 +25,7 @@
 \linespread{1.05}
 
 % change whitespace before header
-\setlength{\headheight}{15pt} 
+\setlength{\headheight}{15pt}
 
 % And Arial for the rest
 %\usepackage[scaled]{helvet}
