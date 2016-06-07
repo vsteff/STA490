@@ -18,10 +18,10 @@ library("dplyr")
 library("lme4")
 library("ggplot2")
 # Load data
-load("STA490/glu_v07_list.RData")
-glu <- data$glu
-patients <- data$patients
-timediff <- data$timediff
+load("STA490/glu_clean.RData")
+# glu <- data$glu
+# patients <- data$patients
+# timediff <- data$timediff
 ```
 
 
@@ -90,20 +90,12 @@ colnames(glu)[4:17]
 missings <- apply(glu[, 4:17], 2, function(x) sum(is.na(x)))
 nrow(glu)-missings
 
-lip <- c("CHOL", "TG", "HDL", "LDL", "LDL.calc")
-x11()
-xyplot(glu[, lip[1]] ~ glu[, "HbA1c.DCCT"], ylab = lip[1])
-xyplot(glu[, lip[1]] ~ glu[, "HbA1c.IFCC"], ylab = lip[1])
-
-i <- 1
-while (i <= length(lip)) {
-  p1 <- plot(glu[, lip[i]] ~ glu[, "HbA1c.DCCT"], ylab = lip[i])
-  p2 <- plot(glu[, lip[i]] ~ glu[, "HbA1c.IFCC"], ylab = lip[i])
-  i <- i + 1
-}
-
 # both scales represent the same patients
 plot(HbA1c.IFCC ~ HbA1c.DCCT, data = glu, pch = 16, cex = 0.6)
+mod <- lm(HbA1c.IFCC ~ HbA1c.DCCT, data = glu)
+summary(mod)
+plot(mod)
+
 IFCC.na <- which(is.na(glu[, "HbA1c.IFCC"]))
 DCCT.na <- which(is.na(glu[, "HbA1c.DCCT"]))
 length(IFCC.na)
@@ -113,42 +105,67 @@ length(intersect(IFCC.na, DCCT.na))
 # IFCC to DCCT
 glu$dcct <- glu$HbA1c.IFCC/10.929+2.15
 mol <- (c(0, 5, 10, 15)-2.15)*10.929
+perc <- c(0, 50, 100, 150, 175)/10.929+2.15
 
 # Scatter plots
+hba1c <- geom_point(aes(x=(HbA1c.DCCT-2.15)*10.929), alpha=0.3, size=1)
+ldlcalc <- geom_point(aes(y=LDL.calc), alpha=0.3, size=1)
+gp <- geom_point(size=1, alpha=0.3)
+labs <- scale_x_continuous(name="HbA1c", breaks = c(0, 50, 100, 150, 175), labels = c("0%\n0", "6.7%\n50", "11.3%\n100", "15.9%\n150", "\n(mmol/mol)"))
+scm <- scale_colour_manual(values = c("black","firebrick3"))
+leg <- theme(legend.position=c(0.9,0.88))
+
+p1 <- ggplot(glu, aes(x=HbA1c.IFCC, y=Glu, col=diabetic)) + gp + theme_bw() + scm + leg + labs
+
+p2 <- ggplot(glu, aes(x=HbA1c.IFCC, y=TG, col=diabetic)) + gp + theme_bw() + scm + leg + labs
+
+p3 <- ggplot(glu, aes(x=HbA1c.IFCC, y=HDL, col=diabetic)) + gp + theme_bw() + scm + leg + labs
+
+p4 <- ggplot(glu, aes(x=HbA1c.IFCC, y=LDL, col=diabetic)) + gp + theme_bw() + scm + leg + labs
+
 pdf(file = "lipid.pdf")
-p1 <- ggplot(glu, aes(x=HbA1c.IFCC, y=Glu))
-p2 <- ggplot(glu, aes(x=HbA1c.IFCC, y=TG))
-p3 <- ggplot(glu, aes(x=HbA1c.IFCC, y=HDL))
-p4 <- ggplot(glu, aes(x=HbA1c.DCCT, y=LDL))
-p5 <- ggplot(glu, aes(x=HbA1c.IFCC, y=LDL.calc))
+p1 + hba1c
+p2 + hba1c
+p3 + hba1c
+p4 + hba1c + ldlcalc + ylim(0,10)
+dev.off()
+```
 
-p1 + geom_point(size=1, alpha=0.3) + theme_bw()
 
-p4 + geom_point(size=1, alpha=0.3, col=factor(glu$diabetic+1), group=factor(glu$diabetic+1)) + theme_bw() + geom_point(aes(x=HbA1c.DCCT, y=LDL.calc), alpha=0.3, size=1, group=factor(glu$diabetic+1)) + scale_x_continuous(name="HbA1c", breaks = c(0, 5, 10, 15, 17.5), labels = c("0%\n0", "5%\n31.1", "10%\n85.8", "15%\n140", "\n(mmol/mol)")) + scale_color_manual(values=c("a"="black","b"="red"))
+Inter- and Intra-day-variability
+```{r}
+# Flag days from patients
+g <- glu[1:100, c("PID", "Glu", "Time", "Inpatient", "cv")]
 
-p4
+g12 <- g[g$PID == 12, ]
 
-#+ scale_color_manual(breaks = c(1,2), values=c("black"="black","red"="red"), labels=c("not diabetic", "diabetic")) #+ theme(legend.position=c(15, 13))
+# mean per day
 
-interaction(glu$LDL, glu$LDL.calc)
+```
 
+
+Modeling
+```{r}
+glu.subset <- glu[which(as.numeric(glu$PID)<10000), ]
+
+library("lme4")
+library("lattice")
+
+fm01 <- lmer(log(Glu) ~ 1 + Age + Sex + Lab + (1 | Ward) + (1 | PID), data = glu, REML = FALSE)
+pdf("STA490/plots/randef_wards.pdf")
+qqmath(ranef(fm01, condVar = TRUE))[["Ward"]]
 dev.off()
 
+summary(fm01)
+plot(fm01, pch = "x")
+
+# fm1 <- lmer(log(Glu) ~ 1 + Age + Sex + Lab + (1 | Ward) + (1 + Age | PID), data = glu, REML = FALSE)
+# fm2 <- lmer(log(Glu) ~ 1 + Age + Sex + Lab + (1 | Ward) + (1 | PID) + (0 + Age | PID), data = glu, REML = FALSE)
+# save(fm1, fm2, file = "STA490/mods.rda")
+load("STA490/mods.rda")
+anova(fm1, fm2)
+
 
 ```
-
-
-```{r}
-plot(HDL ~ HbA1c.IFCC, data = glu, pch = 16, cex = 0.6, col = Sex)
-legend("topright", as.character(unique(glu$Sex)), col= 1:2, pch = 16)
-
-xyplot(HDL ~ HbA1c.IFCC, group = Ward, data = glu)
-       #auto.key = list(space = "right"))
-```
-
-
-
-
-
 
 

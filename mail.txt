@@ -1,0 +1,43 @@
+Hallo Niels,
+
+wow, vielen, vielen Dank für die ausführliche Antwort. Ich habe ein paar Kommentare zurück. 
+
+zu 1)
+was ich in der Präsentation verglichen habe, waren nicht die Mittelwerte pro Ward, sondern die Variabilität der Patienten in den Wards (CV). Aber das sind nur einzelne extreme Ausreisser. Deswegen sieht es als RE wahrscheinlich ganz gut aus.
+
+zu 2) 
+bei den Patienten haben wir dafür viele unterschiedliche Variabilitäten (manchmal auch nur 1 Messwert und keine Variabilität) - da ist quasi alles dabei. 
+Mir war gar nicht klar, dass für die REs gleiche Varianzen vorausgesetzt werden. Danke für die Aufklärung. 
+Leider ist fm1 und fm2  nicht konvergiert. Ich bekam jeweils folgende Warnung:
+Warning messages:
+1: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  Model failed to converge with max|grad| = 0.226384 (tol = 0.002, component 1)
+2: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  Model is nearly unidentifiable: very large eigenvalue
+ - Rescale variables?
+
+Das Ergebnis der ANOVA ist dann:
+> anova(fm1, fm2)
+Data: glu
+Models:
+fm2: log(Glu) ~ 1 + Age + Sex + Lab + (1 | Ward) + (1 | PID) + (0 + 
+fm2:     Age | PID)
+fm1: log(Glu) ~ 1 + Age + Sex + Lab + (1 | Ward) + (1 + Age | PID)
+    Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(>Chisq)    
+fm2  8 122849 122934 -61416   122833                             
+fm1  9 122800 122896 -61391   122782 50.789      1  1.029e-12 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+zu 3)
+OK, das mit Lab macht Sinn. Und es ist schon automatisch so, dass ClinChem (niedrigere Varianz) 0 ist und POC (höhere Var) 1. 
+
+zu 4)
+der Unterschied zwischen den Bestimmungsmethoden ist nicht wirklich von Interesse, bzw. könnte zu Fehlinterpretationen führen. POC ist die einfachere, schnellere Methode - diese wird erfahrungsgemäss häufig bei Diabetikern zur Routine-Überwachung benutzt. Und es ist zu erwarten, dass Diabetiker im Schnitt höhere Glukose Werte haben als Nicht-Diabetiker (und auch eine höhere Variabilität). Ist ein schwieriges Thema.. 
+Aber gut, austauschbar sind sie daher nicht. Also ich stimme dir zu, dass es als FE insgesamt mehr Sinn macht. 
+
+zu 5) 
+ich habe glaube ich verstanden, was du meintest mit der FID. Allerdings habe ich nur anonymisierte PIDs bekommen. Ich frage auf jeden Fall mal nach ob man da nicht etwas machen kann. 
+
+Deine Zusammenfassung zu Mixed Effects Models ist sehr wertvoll, vielen Dank auch dafür. 

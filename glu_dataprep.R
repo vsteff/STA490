@@ -169,7 +169,7 @@ for (i in 1:npatients) {  # i: patient
   }
 }  # takes about 3.5 hours
 glu$Time.trunc <- NULL  # do not need it anymore
-glu$Inpatient <- factor(glu$Inpatient, levels = c(0, 1), labels = c("no", "yes"))
+glu$Inpatient <- factor(glu$Inpatient, labels = c(0,1))
 
 ### (High) variability
 # Calculate patient CV (%)
@@ -198,7 +198,7 @@ for (i in 1:npatients) {
     glu[as.numeric(glu$PID) == i, "diabetic"] <- 0
   }
 }
-glu$diabetic <- factor(glu$diabetic, levels = c(0, 1), labels = c("no", "yes"))
+glu$diabetic <- factor(glu$diabetic, labels = c(0, 1))
 
 ### Glycemic control status
 # Define status according to glycemic control ranges
