@@ -28,7 +28,7 @@ colnames(glu.full) <- c("Lab", "Time", "Sex", "Glu", "Cr.ABL", "CR", "eGFR",
                    "eGFR.EPI", "HbA1c.DCCT", "HbA1c.IFCC", "ASAT", "ALAT", 
                    "CHOL", "TG", "HDL", "LDL", "LDL.calc", "YOB", 
                    "PID.anon", "Ward.anon")  # simplify names
-glu.full$Lab[which(glu.full.full$Lab == "Zentrum f\x9fr Labormedizin")] <- "Klinische Chemie"
+glu.full$Lab[which(glu.full$Lab == "Zentrum f\x9fr Labormedizin")] <- "Klinische Chemie"
 glu.full$Lab[which(glu.full$Lab == "Klinische Chemie")] <- "ClinChem"
 glu.full$Lab[which(glu.full$Lab == "Point-of-Care-Diagnostik")] <- "POC"
 glu.full$Lab <- as.factor(glu.full$Lab)  # convert to factor
@@ -40,13 +40,24 @@ glu.full$Sex <- as.factor(glu.full$Sex)  # convert to factor
 glu.full$Glu <- as.numeric(glu.full$Glu)  # convert to numeric
 glu.full$Cr.ABL <- as.numeric(glu.full$Cr.ABL)
 glu.full$CR <- as.numeric(glu.full$CR)
-glu.full$eGFR <- as.numeric(glu.full$eGFR)
-glu.full$eGFR.EPI <- as.numeric(glu.full$eGFR.EPI)
+glu.full$eGFR[which(glu.full$eGFR == "")] <- NA
+glu.full$eGFR <- gsub(" ", "", glu.full$eGFR)
+glu.full$eGFR <- factor(glu.full$eGFR, ordered = TRUE)
+levels(glu.full$eGFR) <- c("<20", rep("[20,55]", 35), rep("(55,90)", 34), ">90")
+glu.full$eGFR.EPI[which(glu.full$eGFR.EPI == "")] <- NA
+glu.full$eGFR.EPI <- gsub(" ", "", glu.full$eGFR.EPI)
+glu.full$eGFR.EPI <- factor(glu.full$eGFR.EPI, ordered = TRUE)
+levels(glu.full$eGFR.EPI) <- c(rep("<20", 6), rep("[20,55]", 36), rep("(55,90]", 35), ">90")
+glu.full$HbA1c.DCCT <- gsub(",", ".", glu.full$HbA1c.DCCT)
 glu.full$HbA1c.DCCT <- as.numeric(glu.full$HbA1c.DCCT)
 glu.full$HbA1c.IFCC <- as.numeric(glu.full$HbA1c.IFCC)
+glu.full$ASAT[which(glu.full$ASAT == "")] <- NA
 glu.full$ASAT <- as.numeric(glu.full$ASAT)
+glu.full$ALAT[which(glu.full$ALAT == "")] <- NA
 glu.full$ALAT <- as.numeric(glu.full$ALAT)
+glu.full$CHOL <- gsub(",", ".", glu.full$CHOL)
 glu.full$CHOL <- as.numeric(glu.full$CHOL)
+glu.full$TG <- gsub(",", ".", glu.full$TG)
 glu.full$TG <- as.numeric(glu.full$TG)
 glu.full$HDL <- as.numeric(glu.full$HDL)
 glu.full$LDL <- as.numeric(glu.full$LDL)
@@ -77,15 +88,15 @@ range(glu.full$YOB, na.rm = TRUE)
 glu.full$Age <- rep(2014, nrow(glu.full)) - glu.full$YOB
 
 ### Exclude some patients
-# 1. Lab = Morphologie (NA)  # 3
+# 1. Lab = Morphologie (NA)  # 4
 a <- which(is.na(glu.full$Lab))
 # 2. Glucose values > 70 & <= 0  # 3
 b <- c(which(glu.full$Glu > 70), which(glu.full$Glu <= 0))
-# 3. NA data in Sex  # 1,112
+# 3. NA data in Sex  # 2,025
 c <- which(is.na(glu.full$Sex))
-# 4. Truncate Age (exclude patients < 3 years)  # 18,953
+# 4. Truncate Age (exclude patients < 3 years)  # 22,749
 d <- c(which(glu.full$Age < 3), which(glu.full$Age > 99), which(is.na(glu.full$YOB)))
-# 6. data not from 2014  # 118,781
+# 6. data not from 2014  # 165,188
 library(chron)
 e <- c(which(month.day.year(glu.full$Time)$year != 14), which(is.na(glu.full$Time)))
 ## exclude
@@ -95,6 +106,7 @@ glu.full <- glu.full[-which.max(glu.full$Time), ]
 glu.full <- glu.full[-which.max(glu.full$Time), ]
 glu.full <- glu.full[-which.max(glu.full$Time), ]
 # because there were three 2015 values not detected by month.day.year()
+glu.full[which.max(glu.full$Time), ]$Time
 
 ### Simplify anonymous factor variables
 ## PID
@@ -124,7 +136,7 @@ glu.full$Time.trunc <- as.chron(glu.full$Time.trunc)
 # Inpatient = at least two successive Glu values on different days
 glu.full$Inpatient <- rep(NA, nrow(glu.full))
 # loop
-npatients <- length(unique(glu.full$PID))  # 41428
+npatients <- length(unique(glu.full$PID))  # 41443
 for (i in 1:npatients) {  # i: patient
   pat.time <- as.data.frame(glu.full)[which(as.numeric(glu.full$PID) == i), "Time.trunc"]
 
