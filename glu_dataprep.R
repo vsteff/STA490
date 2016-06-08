@@ -5,7 +5,7 @@
 ##########                                                           ##########
 ########## University of Zurich STA490 Statistical Consulting FS2016 ##########
 ##########                                                           ##########
-##########   for Lia Belly and Alexander Leichtle at Unispital Bern  ##########
+##########   for Lia Bally and Alexander Leichtle at Unispital Bern  ##########
 ##########                                                           ##########
 ##########               supervised by Christos Nakas                ##########
 ###############################################################################
@@ -237,9 +237,30 @@ for (i in (1:length(public.holidays.bern2014))) {
 glu$holiday <- ifelse(glu$day == "Sunday", TRUE, FALSE)
 glu$holiday[ind.ph] <- TRUE
 
-
-
 ### After long computations: save workspace
 # save(glu, file = "STA490/glu_clean.RData")
 load("STA490/glu_clean.RData")
 summary(glu)
+
+
+#############################################################################
+### Define summary per patient
+
+patients <- data.frame(row.names = 1:length(unique(glu$PID)))
+patients$PID <- 1:length(unique(glu$PID))
+patients$Glu.mean <- tapply(glu$Glu, glu$PID, mean, na.rm = TRUE)
+
+patients$cv <- tapply(glu$cv, glu$PID, mean, na.rm = TRUE)
+patients$Sex <- as.factor(tapply(as.integer(glu$Sex), glu$PID, max))
+patients$Sex <- factor(patients$Sex, levels = c(1, 2), labels = c("F", "M"))
+patients$Age <- as.integer(tapply(glu$Age, glu$PID, mean))
+patients$diabetic <- as.factor(tapply(as.integer(glu$diabetic)-1, glu$PID, max))
+library("plyr")
+patients$no.meas <- ddply(data.frame(glu$Inpatient, glu$PID),
+                     ~ glu.PID, summarise,
+                     no.meas = sum(as.integer(glu.Inpatient)-1))$no.meas
+patients$no.meas[which(patients$no.meas == 0)] <- 1
+
+# save(patients, file = "STA490/patients_clean.RData")
+load("STA490/patients_clean.RData")
+summary(patients)

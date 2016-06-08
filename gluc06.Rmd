@@ -165,7 +165,7 @@ pat.no.meas <- ddply(data.frame(glu$Inpatient, glu$PID),
                   ~ glu.PID, summarise,
                   no.meas = sum(as.integer(glu.Inpatient)-1))$no.meas
 
-# Length of stay
+# Length of stay try
 stays <- aggregate(Glu ~ stay + PID, data = glu[which(glu$Inpatient == 1), ], 
                function(x) sd(x, na.rm=T)/mean(x,na.rm=T)*100)
 hist(stays$Glu, xlim = c(0, 50), breaks = 30, xlab = "CV per stay")
